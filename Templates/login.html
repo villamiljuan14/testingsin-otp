@@ -135,41 +135,6 @@
                 </div>
             </form>
 
-            <!-- Sección OTP (oculta inicialmente) -->
-            <div id="otpSection" class="hidden space-y-5 fade-up delay-2 p-5 rounded-3xl border border-slate-200 bg-slate-50 text-slate-900 shadow-lg shadow-slate-900/10">
-                <div class="text-center mb-4">
-                    <p class="text-slate-900 text-sm">Se envió un código a <span id="otpEmail" class="font-semibold"></span></p>
-                    <p class="text-slate-600 text-xs mt-1">Ingresa el código de 6 dígitos para continuar</p>
-                </div>
-
-                <!-- Cuadros individuales para el código OTP -->
-                <div class="flex justify-center gap-2" id="otpInputs">
-                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="0">
-                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="1">
-                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="2">
-                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="3">
-                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="4">
-                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="5">
-                </div>
-
-                <!-- Botón verificar OTP -->
-                <button type="button" id="verifyOtpBtn" class="btn-primary w-full">Verificar Código</button>
-
-                <!-- Reenviar código -->
-                <div class="text-center">
-                    <button type="button" id="resendOtpBtn" class="link-accent text-sm disabled:opacity-50" disabled>
-                        Reenviar código (<span id="resendTimer">60</span>s)
-                    </button>
-                </div>
-
-                <!-- Volver al login -->
-                <div class="text-center pt-2">
-                    <button type="button" id="backToLoginBtn" class="text-slate-600 text-sm hover:text-slate-900 transition-colors">
-                        ← Volver al login
-                    </button>
-                </div>
-            </div>
-
             <!-- Link móvil para registro -->
             <p class="md:hidden auth-footer-text fade-up delay-3">
                 ¿No tienes cuenta?
@@ -180,49 +145,10 @@
 
     <script src="{% static 'js/auth.js' %}"></script>
     <script>
-        // Variables globales para OTP
-        let accessToken = '';
-        let userEmail = '';
-
-        // Manejo de cuadros individuales OTP
+        // Login simplificado sin OTP
         document.addEventListener('DOMContentLoaded', function() {
-            const otpInputs = document.querySelectorAll('.otp-input');
-            
-            otpInputs.forEach((input, index) => {
-                input.addEventListener('input', function(e) {
-                    // Solo permitir números
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                    
-                    // Auto-focus al siguiente input
-                    if (this.value.length === 1 && index < otpInputs.length - 1) {
-                        otpInputs[index + 1].focus();
-                    }
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    // Backspace para ir al input anterior
-                    if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
-                        otpInputs[index - 1].focus();
-                    }
-                });
-                
-                // Pegar código completo
-                input.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-                    pastedData.split('').forEach((char, i) => {
-                        if (i < otpInputs.length) {
-                            otpInputs[i].value = char;
-                        }
-                    });
-                    if (pastedData.length === 6) {
-                        otpInputs[5].focus();
-                    }
-                });
-            });
-
-            // Manejo del login
             const loginForm = document.getElementById('loginForm');
+            
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -231,7 +157,6 @@
                 const apiUrl = '/api/auth/login/';
                 
                 try {
-                    // Login normal para obtener tokens JWT
                     console.log('Login API URL:', apiUrl);
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -245,19 +170,8 @@
                     const data = await response.json();
                     
                     if (response.ok) {
-                        accessToken = data.access;
-                        userEmail = email;
-                        
-                        // Enviar OTP
-                        await sendOTP();
-                        
-                        // Mostrar sección OTP
-                        document.getElementById('loginForm').classList.add('hidden');
-                        document.getElementById('otpSection').classList.remove('hidden');
-                        document.getElementById('otpEmail').textContent = email;
-                        
-                        // Iniciar timer de reenvío
-                        startResendTimer();
+                        // Login exitoso, redirigir al dashboard
+                        window.location.href = '/dashboard/';
                     } else {
                         alert('Error: ' + JSON.stringify(data));
                     }
@@ -266,122 +180,7 @@
                     alert('Error de conexión: ' + error.message + '\nURL: ' + apiUrl);
                 }
             });
-
-            // Verificar OTP
-            document.getElementById('verifyOtpBtn').addEventListener('click', async function() {
-                const otpInputs = document.querySelectorAll('.otp-input');
-                let code = '';
-                otpInputs.forEach(input => code += input.value);
-                
-                if (code.length !== 6) {
-                    alert('Ingresa el código completo de 6 dígitos');
-                    return;
-                }
-                
-                try {
-                    const response = await fetch('/api/otp/email/verify/', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`
-                        },
-                        body: JSON.stringify({ code })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        // OTP verificado, actualizar token
-                        accessToken = data.access;
-                        
-                        // Establecer sesión de Django
-                        const sessionResponse = await fetch('/api/auth/otp-login/', {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${accessToken}`
-                            }
-                        });
-                        
-                        const sessionData = await sessionResponse.json();
-                        
-                        if (sessionResponse.ok && sessionData.success) {
-                            // Redirigir al dashboard
-                            window.location.href = sessionData.redirect;
-                        } else {
-                            alert('Error al establecer sesión: ' + (sessionData.error || 'Desconocido'));
-                        }
-                    } else {
-                        alert('Código incorrecto: ' + data.message);
-                        // Limpiar inputs
-                        otpInputs.forEach(input => input.value = '');
-                        otpInputs[0].focus();
-                    }
-                } catch (error) {
-                    alert('Error de conexión: ' + error.message);
-                }
-            });
-
-            // Reenviar OTP
-            document.getElementById('resendOtpBtn').addEventListener('click', async function() {
-                await sendOTP();
-                startResendTimer();
-                alert('Código reenviado');
-            });
-
-            // Volver al login
-            document.getElementById('backToLoginBtn').addEventListener('click', function() {
-                document.getElementById('otpSection').classList.add('hidden');
-                document.getElementById('loginForm').classList.remove('hidden');
-                accessToken = '';
-                userEmail = '';
-                // Limpiar inputs OTP
-                document.querySelectorAll('.otp-input').forEach(input => input.value = '');
-            });
         });
-
-        async function sendOTP() {
-            try {
-                const response = await fetch('/api/otp/email/send/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
-                    },
-                    body: JSON.stringify({ email: userEmail || document.getElementById('email').value.trim() })
-                });
-                
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.message || 'Error al enviar OTP');
-                }
-            } catch (error) {
-                console.error('Error enviando OTP:', error);
-                throw error;
-            }
-        }
-
-        function startResendTimer() {
-            const resendBtn = document.getElementById('resendOtpBtn');
-            const timerSpan = document.getElementById('resendTimer');
-            let seconds = 60;
-            
-            resendBtn.disabled = true;
-            
-            const interval = setInterval(() => {
-                seconds--;
-                timerSpan.textContent = seconds;
-                
-                if (seconds <= 0) {
-                    clearInterval(interval);
-                    resendBtn.disabled = false;
-                    resendBtn.textContent = 'Reenviar código';
-                }
-            }, 1000);
-        }
     </script>
 </body>
 

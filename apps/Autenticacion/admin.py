@@ -38,10 +38,8 @@ class UsuarioAdmin(UserAdmin):
             )
         }),
         (_('Permisos'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        (_('Seguridad & 2FA'), {
+        (_('Seguridad'), {
             'fields': (
-                'totp_enabled',         
-                'totp_secret',          
                 'intentos_login_fallidos', 
                 'bloqueo_hasta', 
                 'ultimo_login_ip'       
