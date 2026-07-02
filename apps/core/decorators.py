@@ -53,8 +53,14 @@ def admin_or_permission(permission_codename):
                 return view_func(request, *args, **kwargs)
 
             # Si es admin (rol) tiene acceso automático
-            if hasattr(request.user, 'rol') and request.user.rol.tipo_rol == TipoRol.ADMINISTRADOR:
-                return view_func(request, *args, **kwargs)
+            if hasattr(request.user, 'rol') and request.user.rol:
+                user_rol_val = request.user.rol.tipo_rol
+                user_rol_label = getattr(request.user.rol, 'get_tipo_rol_display', lambda: None)()
+                
+                # Verificar por valor del enum o por la etiqueta humana
+                if (user_rol_val == TipoRol.ADMINISTRADOR or 
+                    user_rol_label == TipoRol.ADMINISTRADOR.label):
+                    return view_func(request, *args, **kwargs)
 
             # Si no es admin, verificar el permiso específico
             if request.user.has_perm(f'Autenticacion.{permission_codename}'):
