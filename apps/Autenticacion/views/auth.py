@@ -27,16 +27,21 @@ class LoginView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         
+        user = serializer.validated_data['user']
+        
+        # Crear sesión de Django para autenticación tradicional
+        django_login(request, user)
+        
         # El serializer corregido ahora nos entrega 'access' y 'refresh'
         return Response({
             'status': 'success',
             'access': serializer.validated_data['access'],
             'refresh': serializer.validated_data['refresh'],
             'user': {
-                'id': serializer.validated_data['user'].id,
-                'email': serializer.validated_data['user'].email,
-                'nombre_completo': serializer.validated_data['user'].nombre_completo,
-                'rol': serializer.validated_data['user'].rol.nombre_rol if serializer.validated_data['user'].rol else None
+                'id': user.id,
+                'email': user.email,
+                'nombre_completo': user.nombre_completo,
+                'rol': user.rol.nombre_rol if user.rol else None
             }
         }, status=status.HTTP_200_OK)
 

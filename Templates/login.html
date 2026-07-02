@@ -145,9 +145,10 @@
 
     <script src="{% static 'js/auth.js' %}"></script>
     <script>
-        // Login simplificado sin OTP
+        // Login simplificado - usa envío tradicional para manejar sesiones correctamente
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
             
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -155,6 +156,12 @@
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 const apiUrl = '/api/auth/login/';
+                
+                // Deshabilitar botón durante la petición
+                if (loginBtn) {
+                    loginBtn.disabled = true;
+                    loginBtn.innerHTML = '<svg class=\"animate-spin h-5 w-5 mx-auto\" viewBox=\"0 0 24 24\"><circle class=\"opacity-25\" cx=\"12\" cy=\"12\" r=\"10\" stroke=\"currentColor\" stroke-width=\"4\" fill=\"none\"></circle><path class=\"opacity-75\" fill=\"currentColor\" d=\"M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z\"></path></svg>';
+                }
                 
                 try {
                     console.log('Login API URL:', apiUrl);
@@ -164,20 +171,43 @@
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ email, password })
+                        body: JSON.stringify({ email, password }),
+                        credentials: 'include' // Importante para incluir cookies
                     });
                     
                     const data = await response.json();
                     
                     if (response.ok) {
-                        // Login exitoso, redirigir al dashboard
+                        // Guardar tokens si existen
+                        if (data.access) {
+                            localStorage.setItem('access_token', data.access);
+                        }
+                        if (data.refresh) {
+                            localStorage.setItem('refresh_token', data.refresh);
+                        }
+                        
+                        // Redirigir al dashboard
                         window.location.href = '/dashboard/';
                     } else {
-                        alert('Error: ' + JSON.stringify(data));
+                        // Restaurar botón
+                        if (loginBtn) {
+                            loginBtn.disabled = false;
+                            loginBtn.textContent = 'Ingresar';
+                        }
+                        
+                        const errorMsg = data.error || data.detail || 'Error al iniciar sesión';
+                        alert('Error: ' + errorMsg);
                     }
                 } catch (error) {
                     console.error('Fetch error:', error);
-                    alert('Error de conexión: ' + error.message + '\nURL: ' + apiUrl);
+                    
+                    // Restaurar botón
+                    if (loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Ingresar';
+                    }
+                    
+                    alert('Error de conexión: ' + error.message);
                 }
             });
         });
