@@ -14,8 +14,9 @@ Usuario = get_user_model()
 
 class LoginView(generics.GenericAPIView):
     """
-    POST /api/token/ (o tu ruta de login)
-    Paso 1: Valida credenciales y entrega un JWT Temporal (sin otp_verified).
+    POST /api/auth/login/
+    Valida credenciales (email/password) y entrega JWT access/refresh directamente.
+    Sin validación OTP ni pasos adicionales.
     """
     authentication_classes = []
     parser_classes = [JSONParser, FormParser, MultiPartParser]
@@ -31,7 +32,6 @@ class LoginView(generics.GenericAPIView):
             'status': 'success',
             'access': serializer.validated_data['access'],
             'refresh': serializer.validated_data['refresh'],
-            'totp_enabled': serializer.validated_data['totp_enabled'],
             'user': {
                 'id': serializer.validated_data['user'].id,
                 'email': serializer.validated_data['user'].email,
@@ -44,7 +44,7 @@ class LoginView(generics.GenericAPIView):
 class RegistroView(generics.CreateAPIView):
     """
     POST /api/registro/
-    Registra al usuario y le entrega sus JWT iniciales para que inicie el flujo OTP.
+    Registra al usuario y le entrega sus JWT iniciales.
     """
     serializer_class = RegistroSerializer
     permission_classes = [AllowAny]
