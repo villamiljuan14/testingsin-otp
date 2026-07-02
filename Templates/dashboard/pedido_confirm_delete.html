@@ -1,0 +1,28 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Eliminar Pedido | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-lg mx-auto mt-12 text-center">
+    <div class="w-20 h-20 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    </div>
+    <h2 class="font-sora font-bold text-2xl mb-4 text-custom-primary">¿Confirmas la eliminación?</h2>
+    <p class="data-table-muted mb-8">
+        Estás a punto de eliminar el pedido <strong>#{{ pedido.id }}</strong> de <strong>{{ pedido.usuario }}</strong>. 
+        Esta acción no se puede deshacer.
+    </p>
+    
+    <div class="flex flex-col gap-3">
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-rose-500/20">
+                Sí, eliminar pedido
+            </button>
+        </form>
+        <a href="{% url 'pedidos_list' %}" class="btn btn-secondary px-8 py-3 rounded-xl font-bold transition-all">
+            No, cancelar
+        </a>
+    </div>
+</div>
+{% endblock %}

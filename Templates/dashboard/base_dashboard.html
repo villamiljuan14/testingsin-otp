@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Enviart Dashboard{% endblock %}</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        /* Autofill override for Dark Mode */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--surface-card-alt) inset !important;
+            -webkit-text-fill-color: var(--text-primary) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-primary': 'var(--text-primary)',
+                        'custom-secondary': 'var(--text-secondary)',
+                        'custom-tertiary': 'var(--text-tertiary)',
+                        'custom-outline': 'var(--text-tertiary)',
+                        'custom-surface': 'var(--surface-card)',
+                        'custom-surface-low': 'var(--surface-card-alt)',
+                        'custom-surface-highest': 'var(--surface-card-hover)',
+                        'custom-brand': 'var(--color-brand)',
+                        'custom-ui': 'var(--border-ui)',
+                    },
+                    fontFamily: {
+                        'sora': ['Sora', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="{% static 'js/theme.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+</head>
+
+<body>
+
+    {% block sidebar %}
+    <aside class="sidebar">
+        <div class="p-6">
+            <a href="{% url 'home' %}" class="flex items-center gap-3">
+                <img src="{% static 'images/shiplog.png' %}" alt="Logo" class="h-8">
+                <span class="font-sora font-bold text-xl tracking-tight">Enviart</span>
+            </a>
+        </div>
+
+        {% with url_name=request.resolver_match.url_name %}
+        <div class="flex-1 overflow-y-auto pb-4 space-y-1 px-3">
+
+            <a href="{% url 'dashboard_index' %}"
+                class="nav-item {% if url_name == 'dashboard_index' %}active{% endif %} mb-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                Dashboard
+            </a>
+
+            <div x-data="{ expanded: {% if url_name in 'dashboard_pedidos,dashboard_guias,dashboard_tracking,dashboard_servicios' %}true{% else %}false{% endif %} }"
+                class="mb-2">
+                <button @click="expanded = !expanded"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-bold text-custom-secondary hover:text-custom-primary transition-colors">
+                    <span class="uppercase tracking-wider text-[11px]">Operación Logística</span>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': expanded}" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="expanded" x-collapse>
+                    <div class="pl-2 space-y-1 border-l-2 border-custom-ui/10 ml-4 mt-1">
+                        <a href="{% url 'dashboard_pedidos' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'dashboard_pedidos' %}active{% endif %}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            Gestión de Pedidos
+                        </a>
+                        <a href="{% url 'dashboard_guias' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'dashboard_guias' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">receipt_long</span>
+                            Guías de Envío
+                        </a>
+                        <a href="{% url 'dashboard_tracking' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'dashboard_tracking' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">satellite_alt</span>
+                            Geolocalización
+                        </a>
+                        <a href="{% url 'dashboard_servicios' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'dashboard_servicios' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">category</span>
+                            Tipos de Servicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flota y Rutas -->
+            <div x-data="{ expanded: {% if url_name in 'vehiculos_list,rutas_list,vehiculo_create,ruta_create' %}true{% else %}false{% endif %} }"
+                class="mb-2">
+                <button @click="expanded = !expanded"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-bold text-custom-secondary hover:text-custom-primary transition-colors">
+                    <span class="uppercase tracking-wider text-[11px]">Flota y Rutas</span>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': expanded}" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="expanded" x-collapse>
+                    <div class="pl-2 space-y-1 border-l-2 border-custom-ui/10 ml-4 mt-1">
+                        <a href="{% url 'vehiculos_list' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'vehiculos_list,vehiculo_create' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">local_shipping</span>
+                            Gestión de Flota
+                        </a>
+                        <a href="{% url 'rutas_list' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'rutas_list,ruta_create' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">route</span>
+                            Plan de Rutas
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div x-data="{ expanded: {% if url_name in 'usuarios_list,usuario_create,usuario_update,usuario_delete,direcciones_list,direccion_create,direccion_update,direccion_delete' %}true{% else %}false{% endif %} }"
+                class="mb-2">
+                <button @click="expanded = !expanded"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-bold text-custom-secondary hover:text-custom-primary transition-colors">
+                    <span class="uppercase tracking-wider text-[11px]">Directorio</span>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': expanded}" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="expanded" x-collapse>
+                    <div class="pl-2 space-y-1 border-l-2 border-custom-ui/10 ml-4 mt-1">
+                        <a href="{% url 'usuarios_list' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'usuarios_list,usuario_create,usuario_update,usuario_delete' %}active{% endif %}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            Usuarios
+                        </a>
+                        <a href="{% url 'dashboard_hubs' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'dashboard_hubs' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">location_on</span>
+                            Hubs
+                        </a>
+                        {% comment %}
+                        <a href="{% url 'direcciones_list' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'direcciones_list' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">contact_page</span>
+                            Direcciones
+                        </a>
+                        {% endcomment %}
+                    </div>
+                </div>
+            </div>
+            <div x-data="{ expanded: {% if url_name in 'pagos_list,pago_create,pago_update,pago_delete' %}true{% else %}false{% endif %} }"
+                class="mb-2">
+                <button @click="expanded = !expanded"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-bold text-custom-secondary hover:text-custom-primary transition-colors">
+                    <span class="uppercase tracking-wider text-[11px]">Administración</span>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': expanded}" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="expanded" x-collapse>
+                    <div class="pl-2 space-y-1 border-l-2 border-custom-ui/10 ml-4 mt-1">
+                        <a href="{% url 'dashboard_reclamos' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'dashboard_reclamos' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">report_problem</span>
+                            Centro de Reclamos
+                        </a>
+                        {% comment %}
+                        <a href="{% url 'pagos_list' %}"
+                            class="nav-item !text-sm !py-2 {% if url_name in 'pagos_list' %}active{% endif %}">
+                            <span class="material-symbols-outlined !text-[16px]">payments</span>
+                            Gestión de Pagos
+                        </a>
+                        {% endcomment %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        {% endwith %}
+
+        <div class="mt-auto border-t border-slate-200/5 dark:border-white/5 p-4 space-y-2">
+            <a href="#" class="nav-item !m-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Settings
+            </a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-item w-full !m-0 text-rose-500 hover:bg-rose-500/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+    {% endblock sidebar %}
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div></div>
+
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="p-2 text-dim hover:text-accent transition-colors" title="Cambiar Tema">
+                    <svg id="sun-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.071 16.071l.707.707M7.636 7.636l.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <svg id="moon-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+
+                <button class="p-2 text-dim hover:text-accent transition-colors relative">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span
+                        class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full border-2 border-main-bg"></span>
+                </button>
+
+                <div class="w-px h-6 bg-glass-border mx-2"></div>
+
+                <div class="flex flex-col items-end mr-2">
+                    <span class="text-sm font-bold text-main">
+                        {{ request.user.primer_nombre }} {{ request.user.primer_apellido|default:'' }}
+                    </span>
+                    <span class="text-[10px] text-accent font-bold uppercase">
+                        {{ request.user.rol.nombre_rol|default:'Sin Rol' }}
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

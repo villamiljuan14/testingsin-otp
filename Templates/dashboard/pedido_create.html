@@ -1,0 +1,663 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Crear Pedido | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    /* Stepper Styles */
+    .stepper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .step-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+    .step-item.active .step-circle {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    .step-item.done .step-circle {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+    }
+
+    .step-circle {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        background: #1e293b;
+        border: 2px solid #334155;
+        color: #94a3b8;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .step-text {
+        flex: 1;
+    }
+
+    .step-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #94a3b8;
+        margin: 0;
+        transition: color 0.3s ease;
+    }
+
+    .step-item.active .step-title {
+        color: #f1f5f9;
+    }
+
+    .step-desc {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .step-line {
+        flex: 1;
+        height: 2px;
+        background: #334155;
+        margin: 0 0.5rem;
+        transition: background 0.3s ease;
+    }
+
+    /* Step Panels */
+    .step-panel {
+        display: none;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .step-panel.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Navigation Buttons */
+    .step-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #334155;
+    }
+
+    .btn-step {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-step-prev {
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #94a3b8;
+    }
+
+    .btn-step-prev:hover {
+        background: #334155;
+        color: #f1f5f9;
+    }
+
+    .btn-step-next {
+        background: #3b82f6;
+        color: white;
+        border: none;
+    }
+
+    .btn-step-next:hover {
+        background: #2563eb;
+    }
+
+    .btn-step-submit {
+        background: #10b981;
+        color: white;
+        border: none;
+    }
+
+    .btn-step-submit:hover {
+        background: #059669;
+    }
+</style>
+
+<div class="space-y-8 animate-in fade-in duration-700">
+    <!-- Header Section -->
+    <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Crear Nuevo Pedido</h1>
+        <p class="text-custom-tertiary text-sm mt-1">Registra un nuevo pedido en el sistema con toda la información
+            requerida.</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm">
+        <div class="stepper flex items-center justify-between">
+            <div class="step-item active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-text">
+                    <p class="step-title">Información del Cliente</p>
+                    <p class="step-desc">Datos del destinatario</p>
+                </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-text">
+                    <p class="step-title">Detalles del Envío</p>
+                    <p class="step-desc">Ruta y características</p>
+                </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-text">
+                    <p class="step-title">Direcciones</p>
+                    <p class="step-desc">Origen y destino detallados</p>
+                </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-text">
+                    <p class="step-title">Confirmación</p>
+                    <p class="step-desc">Revisión final</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <form method="POST" id="pedido-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {% csrf_token %}
+
+        <!-- Form Section (2/3 width) -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Step 1: Cliente Information -->
+            <div class="step-panel active" id="panel-1">
+                <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm">
+                    <!-- Header with Navigation -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500">
+                                <span class="material-symbols-outlined text-2xl">person</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-custom-primary">Información del Cliente</h3>
+                                <p class="text-sm text-custom-tertiary">Datos del remitente y destinatario</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% for field in form %}
+                        {% if field.name == 'nombre_destinatario' or field.name == 'telefono_destinatario' or field.name == 'email_destinatario' or field.name == 'tipo_servicio' or field.name == 'estado' %}
+                        <div class="space-y-2">
+                            <label
+                                class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">
+                                {{ field.label }}
+                            </label>
+                            <div class="relative">
+                                {{ field }}
+                            </div>
+                            {% if field.errors %}
+                            <div class="text-red-500 text-xs mt-1 p-2 rounded bg-red-500/10">
+                                {{ field.errors.0 }}
+                            </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <p class="text-xs text-custom-tertiary mt-1">{{ field.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Bottom Navigation -->
+                    <div class="step-nav" style="justify-content: flex-end; margin-top: 1.5rem;">
+                        <button type="button" class="btn-step btn-step-next" onclick="goStep(2)">
+                            Continuar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Detalles del Envío -->
+            <div class="step-panel" id="panel-2">
+                <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm">
+                    <!-- Header with Navigation -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500">
+                                <span class="material-symbols-outlined text-2xl">local_shipping</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-custom-primary">Detalles del Envío</h3>
+                                <p class="text-sm text-custom-tertiary">Características del paquete</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% for field in form %}
+                        {% if field.name == 'hub_origen' or field.name == 'hub_destino' or field.name == 'pais_origen' or field.name == 'departamento_origen' or field.name == 'ciudad_origen' or field.name == 'pais_destino' or field.name == 'departamento_destino' or field.name == 'ciudad_destino' or field.name == 'peso_real_kg' or field.name == 'largo_cm' or field.name == 'ancho_cm' or field.name == 'alto_cm' or field.name == 'valor_declarado' %}
+                        <div class="space-y-2">
+                            <label
+                                class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">
+                                {{ field.label }}
+                            </label>
+                            <div class="relative">
+                                {{ field }}
+                            </div>
+                            {% if field.errors %}
+                            <div class="text-red-500 text-xs mt-1 p-2 rounded bg-red-500/10">
+                                {{ field.errors.0 }}
+                            </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <p class="text-xs text-custom-tertiary mt-1">{{ field.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Bottom Navigation -->
+                    <div class="step-nav" style="justify-content: space-between; margin-top: 1.5rem;">
+                        <button type="button" class="btn-step btn-step-prev" onclick="goStep(1)">
+                            Volver
+                        </button>
+                        <button type="button" class="btn-step btn-step-next" onclick="goStep(3)">
+                            Continuar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Direcciones -->
+            <div class="step-panel" id="panel-3">
+                <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm">
+                    <!-- Header with Navigation -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500">
+                                <span class="material-symbols-outlined text-2xl">location_on</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-custom-primary">Direcciones</h3>
+                                <p class="text-sm text-custom-tertiary">Detalles de recogida y entrega</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dirección de Origen -->
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="material-symbols-outlined text-orange-500">outbound</span>
+                            <h4 class="text-md font-semibold text-custom-primary">Dirección de Origen (Recogida)</h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for field in form %}
+                            {% if field.name == 'direccion_origen_calle' or field.name == 'direccion_origen_numero' or field.name == 'direccion_origen_barrio' or field.name == 'direccion_origen_referencia' %}
+                            <div class="space-y-2 {% if field.name == 'direccion_origen_referencia' %}md:col-span-2{% endif %}">
+                                <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">
+                                    {{ field.label }}
+                                </label>
+                                <div class="relative">
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                <div class="text-red-500 text-xs mt-1 p-2 rounded bg-red-500/10">
+                                    {{ field.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                <p class="text-xs text-custom-tertiary mt-1">{{ field.help_text }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Dirección de Destino -->
+                    <div class="mb-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="material-symbols-outlined text-blue-500">pin_drop</span>
+                            <h4 class="text-md font-semibold text-custom-primary">Dirección de Destino (Entrega)</h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for field in form %}
+                            {% if field.name == 'direccion_destino_calle' or field.name == 'direccion_destino_numero' or field.name == 'direccion_destino_barrio' or field.name == 'direccion_destino_referencia' %}
+                            <div class="space-y-2 {% if field.name == 'direccion_destino_referencia' %}md:col-span-2{% endif %}">
+                                <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">
+                                    {{ field.label }}
+                                </label>
+                                <div class="relative">
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                <div class="text-red-500 text-xs mt-1 p-2 rounded bg-red-500/10">
+                                    {{ field.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                <p class="text-xs text-custom-tertiary mt-1">{{ field.help_text }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Bottom Navigation -->
+                    <div class="step-nav" style="justify-content: space-between; margin-top: 1.5rem;">
+                        <button type="button" class="btn-step btn-step-prev" onclick="goStep(2)">
+                            Volver
+                        </button>
+                        <button type="button" class="btn-step btn-step-next" onclick="goStep(4)">
+                            Continuar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Confirmación y Instrucciones -->
+            <div class="step-panel" id="panel-4">
+                <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm">
+                    <!-- Header with Navigation -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500">
+                                <span class="material-symbols-outlined text-2xl">description</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-custom-primary">Instrucciones Especiales</h3>
+                                <p class="text-sm text-custom-tertiary">Información adicional para el mensajero</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% for field in form %}
+                    {% if field.name == 'descripcion_contenido' %}
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">
+                            {{ field.label }}
+                        </label>
+                        <div class="relative">
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                        <div class="text-red-500 text-xs mt-1 p-2 rounded bg-red-500/10">
+                            {{ field.errors.0 }}
+                        </div>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <p class="text-xs text-custom-tertiary mt-1">{{ field.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Confirmación -->
+                <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm mt-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500">
+                            <span class="material-symbols-outlined text-2xl">check_circle</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-custom-primary">Confirmación</h3>
+                            <p class="text-sm text-custom-tertiary">Revise los detalles antes de crear</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-custom-surface rounded-xl p-4 border border-custom-ui space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-custom-ui">
+                            <span class="text-sm text-custom-secondary">Destinatario</span>
+                            <span class="text-sm font-medium text-custom-primary" id="confirm-nombre">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-custom-ui">
+                            <span class="text-sm text-custom-secondary">Teléfono</span>
+                            <span class="text-sm font-medium text-custom-primary" id="confirm-telefono">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-custom-ui">
+                            <span class="text-sm text-custom-secondary">Ruta</span>
+                            <span class="text-sm font-medium text-custom-primary" id="confirm-ruta">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-custom-ui">
+                            <span class="text-sm text-custom-secondary">Peso</span>
+                            <span class="text-sm font-medium text-custom-primary" id="confirm-peso">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-custom-ui">
+                            <span class="text-sm text-custom-secondary">Valor Declarado</span>
+                            <span class="text-sm font-medium text-custom-primary" id="confirm-valor">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-sm font-semibold text-custom-primary">Costo Total</span>
+                            <span class="text-lg font-bold text-blue-600" id="confirm-total">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-amber-500">info</span>
+                            <div>
+                                <p class="text-sm font-medium text-amber-600">Verificación requerida</p>
+                                <p class="text-xs text-amber-600/80 mt-1">Al hacer clic en "Crear Pedido", confirmas que
+                                    toda la información es correcta y autorizas el envío.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Navigation -->
+                    <div class="step-nav" style="justify-content: space-between; margin-top: 1.5rem;">
+                        <button type="button" class="btn-step btn-step-prev" onclick="goStep(3)">
+                            ← Volver
+                        </button>
+                        <button type="submit" class="btn-step btn-step-submit">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Crear Pedido
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar (1/3 width) - Sticky -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-6 space-y-6">
+                <!-- Quick Stats -->
+                <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm">
+                    <h3 class="text-lg font-semibold text-custom-primary mb-4">Resumen del Pedido</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-custom-secondary">Tipo de Servicio</span>
+                            <span class="text-sm font-medium text-custom-primary" id="servicio-preview">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-custom-secondary">Peso Estimado</span>
+                            <span class="text-sm font-medium text-custom-primary" id="peso-preview">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-custom-secondary">Valor Declarado</span>
+                            <span class="text-sm font-medium text-custom-primary" id="valor-preview">-</span>
+                        </div>
+                        <div class="border-t border-custom-ui pt-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-semibold text-custom-primary">Costo Estimado</span>
+                                <span class="text-lg font-bold text-blue-600" id="costo-preview">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Options -->
+                <div class="bg-custom-surface-low rounded-2xl p-6 border border-custom-ui shadow-sm">
+                    <h3 class="text-lg font-semibold text-custom-primary mb-4">Opciones Adicionales</h3>
+                    <div class="space-y-3">
+                        {% for field in form %}
+                        {% if field.name == 'es_fragil' %}
+                        <label
+                            class="flex items-center gap-3 p-3 rounded-xl hover:bg-custom-ui cursor-pointer transition-colors">
+                            {{ field }}
+                            <div>
+                                <p class="text-sm font-medium text-custom-primary">Seguro Adicional</p>
+                                <p class="text-xs text-custom-tertiary">Protección extra para envíos valiosos</p>
+                            </div>
+                        </label>
+                        {% endif %}
+                        {% if field.name == 'requiere_firma' %}
+                        <label
+                            class="flex items-center gap-3 p-3 rounded-xl hover:bg-custom-ui cursor-pointer transition-colors">
+                            {{ field }}
+                            <div>
+                                <p class="text-sm font-medium text-custom-primary">Requiere Firma</p>
+                                <p class="text-xs text-custom-tertiary">Confirmación de entrega</p>
+                            </div>
+                        </label>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Cancel Button -->
+                <a href="{% url 'dashboard_pedidos' %}"
+                    class="w-full bg-custom-surface hover:bg-custom-ui text-custom-primary font-medium py-3 px-6 rounded-xl border border-custom-ui transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Cancelar
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        // Update preview values based on form inputs
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('pedido-form');
+            const servicioPreview = document.getElementById('servicio-preview');
+            const pesoPreview = document.getElementById('peso-preview');
+            const valorPreview = document.getElementById('valor-preview');
+            const costoPreview = document.getElementById('costo-preview');
+
+            function updatePreviews() {
+                const servicioField = form.querySelector('[name="tipo_servicio"]');
+                const pesoField = form.querySelector('[name="peso_real_kg"]');
+                const valorField = form.querySelector('[name="valor_declarado"]');
+                const nombreField = form.querySelector('[name="nombre_destinatario"]');
+                const telefonoField = form.querySelector('[name="telefono_destinatario"]');
+                const hubOrigenField = form.querySelector('[name="hub_origen"]');
+                const hubDestinoField = form.querySelector('[name="hub_destino"]');
+
+                if (servicioField && servicioField.value) {
+                    const option = servicioField.querySelector(`option[value="${servicioField.value}"]`);
+                    servicioPreview.textContent = option ? option.textContent : '-';
+                }
+
+                pesoPreview.textContent = pesoField && pesoField.value ? `${pesoField.value} kg` : '-';
+                valorPreview.textContent = valorPreview && valorField.value ? `$${parseFloat(valorField.value).toFixed(2)}` : '-';
+
+                // Calculate estimated cost (simple formula)
+                if (pesoField && pesoField.value && valorField && valorField.value) {
+                    const peso = parseFloat(pesoField.value);
+                    const valor = parseFloat(valorField.value);
+                    const costoBase = peso * 5; // $5 per kg
+                    const costoSeguro = valor * 0.01; // 1% of declared value
+                    const costoTotal = costoBase + costoSeguro;
+                    costoPreview.textContent = `$${costoTotal.toFixed(2)}`;
+                } else {
+                    costoPreview.textContent = '$0.00';
+                }
+
+                // Update confirmation section
+                const confirmNombre = document.getElementById('confirm-nombre');
+                const confirmTelefono = document.getElementById('confirm-telefono');
+                const confirmRuta = document.getElementById('confirm-ruta');
+                const confirmPeso = document.getElementById('confirm-peso');
+                const confirmValor = document.getElementById('confirm-valor');
+                const confirmTotal = document.getElementById('confirm-total');
+
+                if (confirmNombre) confirmNombre.textContent = nombreField && nombreField.value ? nombreField.value : '-';
+                if (confirmTelefono) confirmTelefono.textContent = telefonoField && telefonoField.value ? telefonoField.value : '-';
+                if (confirmPeso) confirmPeso.textContent = pesoField && pesoField.value ? `${pesoField.value} kg` : '-';
+                if (confirmValor) confirmValor.textContent = valorField && valorField.value ? `$${parseFloat(valorField.value).toFixed(2)}` : '-';
+                if (confirmTotal) confirmTotal.textContent = costoPreview.textContent;
+
+                // Update ruta
+                if (confirmRuta && hubOrigenField && hubDestinoField) {
+                    const origenOption = hubOrigenField.querySelector(`option[value="${hubOrigenField.value}"]`);
+                    const destinoOption = hubDestinoField.querySelector(`option[value="${hubDestinoField.value}"]`);
+                    const origenText = origenOption ? origenOption.textContent.split('(')[0].trim() : '-';
+                    const destinoText = destinoOption ? destinoOption.textContent.split('(')[0].trim() : '-';
+                    confirmRuta.textContent = origenText !== '-' && destinoText !== '-' ? `${origenText} → ${destinoText}` : '-';
+                }
+            }
+
+            // Update previews when form inputs change
+            form.addEventListener('input', updatePreviews);
+            form.addEventListener('change', updatePreviews);
+
+            // Initial update
+            updatePreviews();
+        });
+
+        // Stepper Navigation
+        window.currentStep = 1;
+        window.goStep = function (target) {
+            // Hide all panels
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+            // Show target panel
+            document.getElementById('panel-' + target).classList.add('active');
+
+            // Update stepper indicators
+            document.querySelectorAll('.step-item').forEach(item => {
+                const n = parseInt(item.dataset.step);
+                item.classList.remove('active', 'done');
+                if (n === target) {
+                    item.classList.add('active');
+                } else if (n < target) {
+                    item.classList.add('done');
+                }
+            });
+
+            window.currentStep = target;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    </script>
+    {% endblock %}

@@ -1,0 +1,114 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Modelos de Servicio | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 animate-in fade-in duration-700">
+
+    <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Modelos de Servicio</h1>
+            <p class="text-custom-tertiary text-sm mt-1">Configuración y definición de las modalidades de transporte.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="h-11 px-5 bg-custom-surface-low text-custom-primary border border-custom-ui/10 rounded-xl flex items-center gap-2 hover:bg-custom-surface-highest transition-all shadow-sm">
+                <span class="material-symbols-outlined">download</span>
+                <span class="hidden md:inline">Exportar</span>
+            </button>
+            <a href="{% url 'servicio_create' %}" class="h-11 px-5 bg-custom-brand text-custom-on-brand font-bold rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined">add_box</span>
+                Nuevo Modelo
+            </a>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ KPI GRID ══════════════════════════════ -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Total -->
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+            <div class="flex items-center gap-4">
+                <div class="h-14 w-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <span class="material-symbols-outlined text-3xl">category</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Modelos Activos</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pedidos Totales -->
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+            <div class="flex items-center gap-4">
+                <div class="h-14 w-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <span class="material-symbols-outlined text-3xl">package_2</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Pedidos Procesados</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.uso_total }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mas popular -->
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+            <div class="flex items-center gap-4">
+                <div class="h-14 w-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <span class="material-symbols-outlined text-3xl">trending_up</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Servicio Principal</p>
+                    <h3 class="text-lg font-black text-custom-primary truncate">Standard Express</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════ SERVICIOS GRID ══════════════════════════════ -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for s in services %}
+        <div class="bg-custom-surface rounded-3xl p-8 border border-custom-ui relative group hover:border-custom-brand/30 transition-all flex flex-col h-full shadow-sm">
+            <div class="flex justify-between items-start mb-6">
+                <div class="h-14 w-14 rounded-2xl bg-custom-surface-low flex items-center justify-center text-custom-brand shadow-inner group-hover:scale-105 transition-transform">
+                    <span class="material-symbols-outlined text-3xl">
+                        {% if 'Aéreo' in s.nombre %}flight{% elif 'Express' in s.nombre %}bolt{% elif 'Marítimo' in s.nombre %}directions_boat{% else %}local_shipping{% endif %}
+                    </span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-xs font-bold text-custom-outline uppercase tracking-widest mb-1">Precio Base</span>
+                    <span class="text-xl font-black text-custom-primary">${{ s.precio_base|floatformat:0 }}</span>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-extrabold text-custom-primary mb-3">{{ s.nombre }}</h3>
+            <p class="text-sm text-custom-tertiary leading-relaxed mb-8 flex-1">
+                {{ s.descripcion }}
+            </p>
+
+            <div class="pt-6 border-t border-custom-ui/30 flex items-center justify-between mt-auto">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-custom-outline uppercase tracking-tighter">Utilizado en</span>
+                    <span class="text-sm font-black text-custom-primary">{{ s.num_pedidos }} pedidos</span>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{% url 'servicio_update' s.id %}" class="h-10 w-10 flex items-center justify-center rounded-xl bg-custom-surface-low text-custom-secondary hover:text-amber-500 hover:bg-amber-500/10 transition-all" title="Configuración">
+                        <span class="material-symbols-outlined text-xl">settings</span>
+                    </a>
+                    <a href="{% url 'servicio_delete' s.id %}" class="h-10 w-10 flex items-center justify-center rounded-xl bg-custom-surface-low text-custom-secondary hover:text-rose-500 hover:bg-rose-500/10 transition-all" title="Eliminar Servicio">
+                        <span class="material-symbols-outlined text-xl">delete</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-20 text-center">
+            <span class="material-symbols-outlined text-6xl text-custom-outline/20">inventory_2</span>
+            <p class="text-lg font-bold text-custom-primary mt-4">No hay servicios definidos</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

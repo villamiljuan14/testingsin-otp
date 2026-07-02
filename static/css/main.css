@@ -1,0 +1,49 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+
+/* ── Navigation User Info ── */
+.user-nav-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 15px;
+}
+
+.user-nav-text {
+    text-align: right;
+    line-height: 1.1;
+}
+
+.user-nav-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.user-nav-role {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.nav-logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    padding: 0;
+}

@@ -1,0 +1,75 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Dashboard Proveedor | Enviart{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="page-title">Panel de Proveedor</h1>
+            <p class="page-subtitle">Gestiona tus servicios y órdenes de transporte.</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <span class="material-symbols-outlined">request_quote</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Cotizaciones</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ cotizaciones|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <span class="material-symbols-outlined">pending_actions</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Pendientes</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ pendientes|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <span class="material-symbols-outlined">paid</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Facturación</p>
+                    <h3 class="text-2xl font-black text-custom-primary">${{ facturacion|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="bg-custom-surface rounded-2xl border border-custom-ui/5 p-6">
+        <h2 class="text-lg font-bold text-custom-primary mb-4">Accesos Rápidos</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'mis_cotizaciones' %}" class="flex items-center gap-3 p-4 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors">
+                <span class="material-symbols-outlined text-blue-600">request_quote</span>
+                <span class="font-medium text-custom-primary">Cotizaciones</span>
+            </a>
+            <a href="{% url 'mis_servicios' %}" class="flex items-center gap-3 p-4 rounded-xl bg-purple-500/5 hover:bg-purple-500/10 transition-colors">
+                <span class="material-symbols-outlined text-purple-600">local_shipping</span>
+                <span class="font-medium text-custom-primary">Mis Servicios</span>
+            </a>
+            <a href="{% url 'mis_facturas' %}" class="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
+                <span class="material-symbols-outlined text-emerald-600">receipt_long</span>
+                <span class="font-medium text-custom-primary">Facturas</span>
+            </a>
+            <a href="{% url 'perfil' %}" class="flex items-center gap-3 p-4 rounded-xl bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
+                <span class="material-symbols-outlined text-gray-600">person</span>
+                <span class="font-medium text-custom-primary">Mi Perfil</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

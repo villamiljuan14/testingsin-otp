@@ -1,0 +1,280 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Gestión de Reclamos e Incidencias | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 animate-in fade-in duration-700">
+
+    <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Centro de Reclamos</h1>
+            <p class="text-custom-tertiary text-sm mt-1">Monitoreo y resolución de incidencias en entregas y servicios.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'reclamo_create' %}" class="h-11 px-6 bg-custom-brand text-custom-on-brand font-bold rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined">add_alert</span>
+                Radicar Reclamo
+            </a>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ FILTROS ══════════════════════════════════ -->
+    <div class="bg-custom-surface-low p-6 rounded-2xl border border-custom-ui shadow-sm">
+        <form method="GET" class="flex flex-col lg:flex-row gap-5 items-end">
+
+            <!-- Buscar -->
+            <div class="flex-1 space-y-2 w-full">
+                <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Buscar Incidencia</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-custom-outline text-lg">search</span>
+                    <input type="text" name="q" value="{{ current_q }}"
+                        placeholder="No. Reclamo, Pedido, Usuario..."
+                        class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 pl-12 pr-4 text-sm text-custom-primary placeholder:text-custom-outline focus:ring-2 focus:ring-blue-500/20 transition-all shadow-inner focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="w-full md:w-52 space-y-2">
+                <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Estado</label>
+                <select name="estado"
+                    class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 px-4 text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
+                    <option value="">Todos los Estados</option>
+                    {% for val, label in estados_reclamo %}
+                    <option value="{{ val }}" {% if current_estado == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Prioridad -->
+            <div class="w-full md:w-48 space-y-2">
+                <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Prioridad</label>
+                <select name="prioridad"
+                    class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 px-4 text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
+                    <option value="">Cualquier Prioridad</option>
+                    {% for val, label in prioridades %}
+                    <option value="{{ val }}" {% if current_prioridad == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex gap-2 h-[46px] items-center flex-shrink-0 w-full lg:w-auto">
+                <button type="submit"
+                    class="flex-1 lg:flex-none h-full px-8 bg-custom-brand text-custom-on-brand font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center">
+                    Filtrar
+                </button>
+                
+                <!-- Exportar Dropdown -->
+                <div class="h-full relative" x-data="{ open: false }">
+                    <button @click="open = !open" @click.away="open = false" type="button"
+                        class="h-full px-5 bg-custom-surface-low text-custom-primary font-bold border border-custom-ui/10 rounded-2xl flex items-center gap-2 hover:bg-custom-surface-highest transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-sm">download</span>
+                        <span>Exportar</span>
+                        <span class="material-symbols-outlined text-xs transition-transform" :class="open ? 'rotate-180' : ''">expand_more</span>
+                    </button>
+                    <div x-show="open" x-transition
+                        class="absolute right-0 mt-2 w-52 bg-custom-surface border border-custom-ui/10 rounded-2xl shadow-2xl z-50 overflow-hidden py-2"
+                        style="display: none;">
+                        <a href="{% url 'export_reclamos' 'pdf' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-rose-600 transition-colors">
+                            <span class="material-symbols-outlined text-rose-500">picture_as_pdf</span> PDF Reporte
+                        </a>
+                        <a href="{% url 'export_reclamos' 'xlsx' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-emerald-600 transition-colors">
+                            <span class="material-symbols-outlined text-emerald-500">table_view</span> Excel Listado
+                        </a>
+                        <a href="{% url 'export_reclamos' 'csv' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-amber-600 transition-colors">
+                            <span class="material-symbols-outlined text-amber-500">csv</span> CSV Plano
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ═══════════════════════════════ KPI GRID ══════════════════════════════ -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total -->
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-slate-500/10 flex items-center justify-center text-slate-600">
+                    <span class="material-symbols-outlined">report</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Histórico Global</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pendientes -->
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-600">
+                    <span class="material-symbols-outlined">pending_actions</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Recién Radicados</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.pendientes }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hoy -->
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Ingresos Hoy</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.hoy }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Críticos -->
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-red-600/10 flex items-center justify-center text-red-600">
+                    <span class="material-symbols-outlined">priority_high</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Casos Críticos</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.criticos }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TABLA PRINCIPAL ══════════════════════════════ -->
+    <div class="bg-custom-surface rounded-3xl overflow-hidden shadow-sm border border-custom-ui">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-custom-surface-low border-b border-custom-ui">
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">No. Reclamo / Pedido</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Información Reclamante</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Tipo / Clase</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest text-center">Prioridad</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Estado</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-custom-ui/30">
+                    {% for r in page_obj %}
+                    <tr class="hover:bg-custom-surface-low/50 transition-colors border-b border-custom-ui/30">
+                        <!-- ID / Pedido -->
+                        <td class="px-8 py-6">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-custom-primary font-mono select-all">{{ r.numero_reclamo }}</span>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span class="text-[9px] bg-custom-ui/50 px-1.5 py-0.5 rounded text-custom-outline font-black uppercase tracking-tighter">Pedido</span>
+                                    <span class="text-xs text-custom-brand font-bold">#{{ r.pedido.numero_pedido }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Reclamante -->
+                        <td class="px-8 py-6">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-custom-primary truncate max-w-[200px]">{{ r.nombre_reclamante }}</span>
+                                <span class="text-[10px] text-custom-outline mt-0.2">{{ r.email_reclamante }}</span>
+                                <span class="text-[9px] text-custom-outline/50 mt-1 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[12px]">calendar_today</span>
+                                    {{ r.fecha_radicacion|date:"d M Y" }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <!-- Tipo -->
+                        <td class="px-8 py-6">
+                            <span class="text-xs font-semibold text-custom-secondary">{{ r.get_tipo_display }}</span>
+                        </td>
+
+                        <!-- Prioridad -->
+                        <td class="px-8 py-6 text-center">
+                            {% if r.prioridad == 'CRITICO' %}
+                            <span class="inline-flex px-3 py-1 rounded-full bg-red-600/10 text-red-600 text-[10px] font-black uppercase tracking-widest">CRÍTICO</span>
+                            {% elif r.prioridad == 'ALTO' %}
+                            <span class="inline-flex px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-widest">ALTO</span>
+                            {% elif r.prioridad == 'MEDIO' %}
+                            <span class="inline-flex px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest">MEDIO</span>
+                            {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest">BAJO</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Estado -->
+                        <td class="px-8 py-6">
+                            {% if r.estado == 'RADICADO' %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>Radicado
+                            </span>
+                            {% elif r.estado == 'EN_REVISION' or r.estado == 'EN_INVESTIGACION' %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>En Trámite
+                            </span>
+                            {% elif r.estado == 'APROBADO' or r.estado == 'PAGADO' %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>Resuelto
+                            </span>
+                            {% else %}
+                            <span class="text-custom-secondary text-[10px] font-black uppercase tracking-widest">{{ r.get_estado_display }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="px-8 py-6 text-right">
+                            <div class="flex justify-end gap-1">
+                                <a href="{% url 'reclamo_update' r.id %}" class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-blue-500 hover:border-blue-500/30 transition-all font-bold" title="Gestionar Reclamo">
+                                    <span class="material-symbols-outlined text-lg">gavel</span>
+                                </a>
+                                <a href="{% url 'reclamo_delete' r.id %}" class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-rose-600 hover:border-rose-500/30 transition-all font-bold" title="Eliminar Reclamo">
+                                    <span class="material-symbols-outlined text-lg">delete</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-8 py-24 text-center">
+                            <span class="material-symbols-outlined text-6xl text-custom-outline/20">policy</span>
+                            <p class="text-lg font-bold text-custom-primary mt-4">Todo en orden</p>
+                            <p class="text-sm text-custom-tertiary">No hay reclamos pendientes con los filtros aplicados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="px-8 py-5 border-t border-custom-ui/30 bg-custom-surface-low flex items-center justify-between">
+            <div class="text-xs text-custom-secondary font-semibold">
+                Mostrando <span class="text-custom-primary font-bold">{{ page_obj.start_index }}–{{ page_obj.end_index }}</span> de <span class="font-bold">{{ page_obj.paginator.count }}</span> incidencias
+            </div>
+
+            <nav class="flex items-center gap-1.5">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}{% if current_prioridad %}&prioridad={{ current_prioridad }}{% endif %}&per_page={{ items_por_pagina }}" class="h-9 px-4 flex items-center justify-center rounded-xl border border-custom-ui text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-all">Anterior</a>
+                {% endif %}
+
+                <div class="flex items-center gap-1">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <span class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-primary text-custom-surface text-xs font-black">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}{% if current_prioridad %}&prioridad={{ current_prioridad }}{% endif %}&per_page={{ items_por_pagina }}" class="h-9 w-9 flex items-center justify-center rounded-xl border border-custom-ui text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-all">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}{% if current_prioridad %}&prioridad={{ current_prioridad }}{% endif %}&per_page={{ items_por_pagina }}" class="h-9 px-4 flex items-center justify-center rounded-xl border border-custom-ui text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-all">Siguiente</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

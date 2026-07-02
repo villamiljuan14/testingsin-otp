@@ -1,0 +1,152 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Geolocalización y Seguimiento | Enviart{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="page-title">Geolocalización</h1>
+            <p class="page-subtitle">Seguimiento en tiempo real y registro de ubicaciones por pedido.</p>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <span class="material-symbols-outlined">satellite_alt</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase tracking-widest">Registros Totales</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase tracking-widest">Pedidos Activos</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.pedidos_activos }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Exportación -->
+    <div class="filter-bar filter-bar--large flex flex-col lg:flex-row gap-4 items-end">
+        <form method="GET" class="flex flex-col md:flex-row flex-1 gap-4 w-full items-end">
+            <div class="flex-1 space-y-2 w-full">
+                <label class="form-label-caps ml-1">Buscar Tracking</label>
+                <div class="relative">
+                    <input type="text" name="q" value="{{ current_q }}" placeholder="Pedido, estado o ubicación..."
+                           class="filter-input filter-input-search filter-input--lg w-full">
+                    <svg class="w-4 h-4 text-custom-tertiary absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto h-[42px]">
+                <button type="submit" class="filter-button px-8 h-full shadow-lg shadow-blue-500/10">Filtrar</button>
+                <a href="{% url 'seguimientos_list' %}" class="btn btn-secondary btn-icon h-full" title="Limpiar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </a>
+            </div>
+        </form>
+
+        <!-- Export Dropdown -->
+        <div class="relative w-full lg:w-auto h-[42px]" x-data="{ open: false }">
+            <button @click="open = !open" class="btn btn-secondary w-full h-full gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Exportar ▾
+            </button>
+            <div x-show="open" @click.away="open = false" x-transition
+                class="absolute right-0 mt-2 w-48 bg-custom-surface border border-custom-ui/10 rounded-2xl shadow-2xl z-50 overflow-hidden py-2">
+                <a href="{% url 'export_seguimientos' 'pdf' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-rose-600 transition-colors">
+                    <span class="material-symbols-outlined text-rose-500">picture_as_pdf</span> PDF Documento
+                </a>
+                <a href="{% url 'export_seguimientos' 'xlsx' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-emerald-600 transition-colors">
+                    <span class="material-symbols-outlined text-emerald-500">table_view</span> Excel Listado
+                </a>
+                <a href="{% url 'export_seguimientos' 'csv' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-amber-600 transition-colors">
+                    <span class="material-symbols-outlined text-amber-500">csv</span> CSV Plano
+                </a>
+            </div>
+        </div>
+
+        <a href="{% url 'seguimiento_create' %}"
+           class="flex items-center gap-2 bg-custom-brand text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-xl shadow-blue-500/10 hover:opacity-90 hover:-translate-y-0.5 transition-all whitespace-nowrap h-[42px]">
+            <span class="material-symbols-outlined text-[18px]">add_location_alt</span>
+            Registrar Ubicación
+        </a>
+    </div>
+
+    <!-- Data Table -->
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Estado/Ubicación</th>
+                    <th>Coordenadas</th>
+                    <th>Fecha Registro</th>
+                    <th>Registrado Por</th>
+                    <th class="text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in seguimientos %}
+                <tr>
+                    <td class="font-bold">#{{ s.pedido.id }}</td>
+                    <td>
+                        <div class="data-table-title">{{ s.estado_seguimiento }}</div>
+                        <div class="data-table-muted">{{ s.ubicacion_actual }}</div>
+                    </td>
+                    <td class="data-table-muted">
+                        {% if s.latitud and s.longitud %}
+                            {{ s.latitud }}, {{ s.longitud }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="data-table-muted">{{ s.fecha_registro|date:"d/m/Y H:i" }}</td>
+                    <td class="data-table-muted">{{ s.registrado_por.primer_nombre|default:"Sistema" }}</td>
+                    <td class="text-right">
+                        <div class="flex justify-end gap-2">
+                            <a href="{% url 'seguimiento_update' s.id %}" class="action-btn" title="Editar">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </a>
+                            <a href="{% url 'seguimiento_delete' s.id %}" class="action-btn action-btn--delete" title="Eliminar" onclick="return confirm('¿Seguro que desea eliminar el registro de este seguimiento?')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-12">
+                        <div class="empty-state">
+                            <div class="empty-state__icon">
+                                <span class="material-symbols-outlined w-8 h-8">share_location</span>
+                            </div>
+                            <p class="empty-state__title">Sin registros</p>
+                            <p class="empty-state__desc">Aún no hay puntos de seguimiento registrados.</p>
+                            <a href="{% url 'seguimiento_create' %}" class="btn btn-primary">+ Registrar Ubicación</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Dashboard Cliente | Enviart{% endblock %}
+
+{% block sidebar %}
+<aside class="sidebar">
+    <div class="p-6">
+        <a href="{% url 'dashboard_cliente' %}" class="flex items-center gap-3">
+            <img src="{% static 'images/Logo.png' %}" alt="Logo" class="h-8">
+            <span class="font-sora font-bold text-xl tracking-tight">Enviart</span>
+        </a>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto pb-4 space-y-1 px-3">
+        <a href="{% url 'dashboard_cliente' %}" class="nav-item active mb-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Mi Panel
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            Mis Pedidos
+        </a>
+        <a href="#" class="nav-item">
+            <span class="material-symbols-outlined !text-[20px]">location_on</span>
+            Rastrear Envío
+        </a>
+    </div>
+
+    <!-- Utility Links -->
+    <div class="mt-auto border-t border-slate-200/5 dark:border-white/5 p-4 space-y-2">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="nav-item w-full !m-0 text-rose-500 hover:bg-rose-500/10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Logout
+            </button>
+        </form>
+    </div>
+</aside>
+{% endblock sidebar %}
+
+{% block dashboard_content %}
+<div class="mb-8 fade-up">
+    <h1 class="page-title">Bienvenido, {{ request.user.primer_nombre }}</h1>
+    <p class="text-custom-secondary mt-1">Aquí puedes gestionar tus envíos y rastrear tus paquetes.</p>
+</div>
+
+<!-- Bento Grid Cliente -->
+<div id="bento-grid">
+    <!-- Total Pedidos -->
+    <div class="bento-item p-6 flex flex-col justify-between fade-up delay-1">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <p class="text-sm font-bold text-custom-secondary uppercase tracking-wider mb-1">Mis Pedidos</p>
+                <h3 class="text-4xl font-bold tracking-tight text-custom-primary">{{ pedidos_totales|default:"0" }}</h3>
+            </div>
+            <div class="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+        </div>
+        <p class="text-sm text-custom-secondary mt-2">Envíos totales registrados</p>
+    </div>
+
+    <div class="bento-item wide p-6 flex items-center justify-center fade-up delay-2">
+        <div class="text-center">
+            <span class="material-symbols-outlined text-4xl text-custom-secondary mb-2">construction</span>
+            <h3 class="text-lg font-bold text-custom-primary">Módulo en construcción</h3>
+            <p class="text-sm text-custom-secondary">Próximamente podrás ver estadísticas detalladas aquí.</p>
+        </div>
+    </div>
+</div>
+{% endblock dashboard_content %}

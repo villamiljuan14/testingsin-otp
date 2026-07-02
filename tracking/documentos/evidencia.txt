@@ -1,0 +1,24 @@
+DOCUMENTO DE EVIDENCIA – EVENTO DE TRACKING
+
+Fecha: 2026-04-04
+Código de Evento: EVT-984532
+Pedido: 123456
+Guía: 789012
+
+Descripción del Evento:
+Se registra la actualización del estado del pedido en el sistema de tracking. 
+El paquete fue procesado correctamente en el centro logístico y continúa su flujo normal hacia el destino final.
+
+Ubicación:
+Centro Logístico Principal – Bogotá, Colombia
+
+Detalles adicionales:
+- El paquete se encuentra en buenas condiciones.
+- No se reportan daños visibles.
+- El tiempo de procesamiento fue dentro de los parámetros establecidos.
+
+Observaciones:
+El evento fue registrado sin inconvenientes. Se recomienda continuar con el monitoreo habitual hasta la entrega final.
+
+Responsable del registro:
+Operador Logístico #10

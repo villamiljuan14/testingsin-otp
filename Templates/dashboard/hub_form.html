@@ -1,0 +1,145 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+
+    <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <a href="{% url 'dashboard_hubs' %}" class="h-8 w-8 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-custom-brand transition-all">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                </a>
+                <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">{{ title }}</h1>
+            </div>
+            <p class="text-custom-tertiary text-sm ml-11">{% if hub %}Editando: {{ hub.nombre }} ({{ hub.codigo }}){% else %}Configure un nuevo nodo de la red logística.{% endif %}</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ FORM CARD ════════════════════════════════ -->
+    <div class="bg-custom-surface-low rounded-3xl border border-custom-ui shadow-xl overflow-hidden">
+        <form method="POST" class="p-8 md:p-10 space-y-10">
+            {% csrf_token %}
+
+            <!-- Sección: Identificación del Hub -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 pb-2 border-b border-custom-ui/30">
+                    <span class="material-symbols-outlined text-custom-brand">info</span>
+                    <h2 class="text-lg font-bold text-custom-primary">Identificación y Clase</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Nombre del Hub</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Código Único</label>
+                        {{ form.codigo }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Tipo de Nodo</label>
+                        {{ form.tipo }}
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">{{ form.hub_padre.label }}</label>
+                        {{ form.hub_padre }}
+                        <p class="text-[10px] text-custom-tertiary ml-1 italic">{{ form.hub_padre.help_text }}</p>
+                    </div>
+                    <div class="flex items-center gap-3 bg-custom-surface rounded-2xl p-4 border border-custom-ui/50">
+                        {{ form.es_activo }}
+                        <label class="text-sm font-bold text-custom-secondary">{{ form.es_activo.label }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección: Ubicación Geográfica -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 pb-2 border-b border-custom-ui/30">
+                    <span class="material-symbols-outlined text-custom-brand">map</span>
+                    <h2 class="text-lg font-bold text-custom-primary">Ubicación y Logística</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Dirección Física</label>
+                        {{ form.direccion }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Ciudad</label>
+                        {{ form.ciudad }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Departamento</label>
+                        {{ form.departamento }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">País</label>
+                        {{ form.pais }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Código Postal</label>
+                        {{ form.codigo_postal }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-custom-surface rounded-2xl border border-custom-ui/30 shadow-inner">
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Latitud</label>
+                        {{ form.latitud }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Longitud</label>
+                        {{ form.longitud }}
+                    </div>
+                    <p class="md:col-span-2 text-[10px] text-custom-tertiary italic">
+                        <span class="material-symbols-outlined text-[12px] align-middle">push_pin</span>
+                        Las coordenadas son opcionales pero recomendadas para la optimización automática de rutas.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Sección: Contacto y Operación -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 pb-2 border-b border-custom-ui/30">
+                    <span class="material-symbols-outlined text-custom-brand">schedule</span>
+                    <h2 class="text-lg font-bold text-custom-primary">Horarios y Contacto</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Teléfono</label>
+                        {{ form.telefono }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Email Operativo</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Hora de Apertura</label>
+                        {{ form.horario_inicio }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Hora de Cierre</label>
+                        {{ form.horario_fin }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="pt-8 flex flex-col md:flex-row gap-4 items-center">
+                <button type="submit" class="w-full md:w-auto px-12 h-14 bg-custom-brand text-custom-on-brand font-black rounded-2xl shadow-xl hover:translate-y-[-2px] hover:shadow-2xl transition-all uppercase tracking-widest text-sm">
+                    {{ button_text }}
+                </button>
+                <a href="{% url 'dashboard_hubs' %}" class="w-full md:w-auto px-8 h-14 flex items-center justify-center text-custom-tertiary font-bold hover:text-custom-primary transition-colors">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

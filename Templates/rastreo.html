@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreo de Envío | Enviart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .tracking-container {
+            max-width: 800px;
+            margin: 100px auto 50px;
+            padding: 40px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        .dark-theme .tracking-container {
+            background: #111827;
+            border-color: #374151;
+        }
+        .tracking-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            font-weight: 800;
+            color: #111827;
+        }
+        .dark-theme .tracking-title {
+            color: #f9fafb;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+        .status-CONFIRMADO { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-EN_TRANSITO { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .status-ENTREGADO { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .status-default { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .info-item {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .dark-theme .info-item {
+            background: #1f2937;
+            border-color: #374151;
+        }
+        .info-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        .dark-theme .info-label {
+            color: #9ca3af;
+        }
+        .info-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        .dark-theme .info-value {
+            color: #f9fafb;
+        }
+        .search-again {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            color: #fca5a5;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="dark-theme"> <!-- Forzar dark theme visualmente consistente para esta subpagina -->
+    <header class="navbar">
+        <div class="container nav-content">
+            <a href="{% url 'home' %}" class="logo">
+                <img src="{% static 'images/shiplog.png' %}" alt="Logo Enviart" class="logo-img">
+                <span>Enviart</span>
+            </a>
+            <nav class="nav-links">
+                <a href="{% url 'home' %}" class="nav-link">Inicio</a>
+                <a href="{% url 'servicios' %}" class="nav-link">Servicios</a>
+                <a href="{% url 'home' %}" class="nav-link">Rastrear Envío</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container tracking-container">
+        <h1 class="tracking-title">Consulta de Rastreo Libre</h1>
+        
+        {% if error %}
+            <div class="alert-error">
+                <strong>Error:</strong> {{ error }}
+            </div>
+            
+            <form action="{% url 'rastrear' %}" method="get" class="search-form" style="margin-top: 30px;">
+                <input type="text" name="guia" placeholder="Ej: PED-2026-X o ENV..." class="search-input" required value="{{ guia }}">
+                <button type="submit" class="btn btn-primary">Buscar de nuevo</button>
+            </form>
+            
+        {% elif pedido %}
+            <div style="text-align: center;">
+                <div class="info-label">Estado Actual</div>
+                <div class="status-badge status-{{ pedido.estado|default:'default' }}">
+                    {{ pedido.get_estado_display|default:pedido.estado }}
+                </div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Número Guía / Rastreo</div>
+                    <div class="info-value">{{ pedido.codigo_rastreo }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Tipo de Servicio</div>
+                    <div class="info-value">{{ pedido.tipo_servicio.nombre|default:"Estándar" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Origen</div>
+                    <div class="info-value">{{ pedido.ciudad_origen.nombre|default:"No especificado" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Destino</div>
+                    <div class="info-value">{{ pedido.ciudad_destino.nombre|default:"No especificado" }}</div>
+                </div>
+                <!-- 
+                Siguiendo las reglas de privacidad: No se exponen datos sensibles (nombres, direcciones físicas o mapa) 
+                en esta vista pública no autenticada.
+                -->
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #9ca3af;">Ingresa un número de guía arriba para rastrear tu envío.</p>
+        {% endif %}
+        
+        <div class="search-again">
+            <a href="{% url 'home' %}" class="btn btn-outline" style="color: white; border-color: white;">Volver al Inicio</a>
+            {% if not user.is_authenticated %}
+                <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">¿Eres el destinatario y deseas ver la ubicación GPS? <a href="{% url 'login' %}" style="color: #60a5fa;">Inicia sesión</a></p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Dashboard Cliente | Enviart{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="page-title">Bienvenido, {{ request.user.primer_nombre }}</h1>
+            <p class="page-subtitle">Gestiona tus envíos y pedidos desde aquí.</p>
+        </div>
+        <a href="{% url 'pedido_create' %}" class="btn btn-primary">
+            <span class="material-symbols-outlined">add</span>
+            Nuevo Pedido
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <span class="material-symbols-outlined">inventory</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Mis Pedidos</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ total_pedidos|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">En Tránsito</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ en_transito|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Entregados</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ entregados|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="bg-custom-surface rounded-2xl border border-custom-ui/5 p-6">
+        <h2 class="text-lg font-bold text-custom-primary mb-4">Accesos Rápidos</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'dashboard_pedidos' %}" class="flex items-center gap-3 p-4 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors">
+                <span class="material-symbols-outlined text-blue-600">shopping_cart</span>
+                <span class="font-medium text-custom-primary">Mis Pedidos</span>
+            </a>
+            <a href="{% url 'tracking_list' %}" class="flex items-center gap-3 p-4 rounded-xl bg-purple-500/5 hover:bg-purple-500/10 transition-colors">
+                <span class="material-symbols-outlined text-purple-600">route</span>
+                <span class="font-medium text-custom-primary">Rastrear Envío</span>
+            </a>
+            <a href="{% url 'mis_reclamos' %}" class="flex items-center gap-3 p-4 rounded-xl bg-rose-500/5 hover:bg-rose-500/10 transition-colors">
+                <span class="material-symbols-outlined text-rose-600">support_agent</span>
+                <span class="font-medium text-custom-primary">Soporte</span>
+            </a>
+            <a href="{% url 'perfil' %}" class="flex items-center gap-3 p-4 rounded-xl bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
+                <span class="material-symbols-outlined text-gray-600">person</span>
+                <span class="font-medium text-custom-primary">Mi Perfil</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

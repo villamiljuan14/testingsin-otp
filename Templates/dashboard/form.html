@@ -1,0 +1,50 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}{{ title }} | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h2 class="section-title text-3xl">{{ title }}</h2>
+            <p class="data-table-muted mt-2">Completa la información a continuación.</p>
+        </div>
+        <button onclick="history.back()" class="data-table-muted hover:text-custom-primary flex items-center gap-2 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Volver
+        </button>
+    </div>
+
+    <div class="form-card">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for field in form %}
+                <div class="space-y-2 {% if field.field.widget.input_type == 'textarea' %}md:col-span-2{% endif %}">
+                    <label class="form-label-caps ml-1">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <p class="status-badge--inactive text-xs mt-1 p-2 rounded">{{ field.errors.0 }}</p>
+                    {% endif %}
+                    {% if field.help_text %}
+                    <p class="data-table-subtitle mt-1">{{ field.help_text }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-6 border-t border-custom-ui/20 flex gap-4">
+                <button type="submit" class="btn btn-primary px-8 py-3">
+                    {{ button_text }}
+                </button>
+                <button type="button" onclick="history.back()" class="btn btn-secondary px-8 py-3">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

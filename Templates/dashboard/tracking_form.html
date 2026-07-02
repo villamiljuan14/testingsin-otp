@@ -1,0 +1,156 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}{{ title }} | Enviart{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <a href="{% url 'dashboard_tracking' %}" class="btn btn-secondary btn-icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        </a>
+        <div>
+            <h1 class="page-title">{{ title }}</h1>
+            <p class="page-subtitle">Registra un nuevo evento de tracking para un pedido o guía.</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-custom-surface rounded-2xl border border-custom-ui/5 shadow-sm p-8">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            
+            <!-- Row 1: Pedido y Guía -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="form-label-caps">Pedido</label>
+                    {{ form.pedido }}
+                    {% if form.pedido.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.pedido.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="space-y-2">
+                    <label class="form-label-caps">Guía de Envío</label>
+                    {{ form.guia }}
+                    {% if form.guia.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.guia.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Row 2: Tipo de Evento y Hub -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="form-label-caps">Tipo de Evento <span class="text-rose-500">*</span></label>
+                    {{ form.tipo_evento }}
+                    {% if form.tipo_evento.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.tipo_evento.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="space-y-2">
+                    <label class="form-label-caps">Hub / Ubicación</label>
+                    {{ form.hub }}
+                    {% if form.hub.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.hub.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Row 3: Ubicación Texto -->
+            <div class="space-y-2">
+                <label class="form-label-caps">Ubicación (Texto)</label>
+                {{ form.ubicacion_texto }}
+                {% if form.ubicacion_texto.errors %}
+                <p class="text-rose-500 text-xs mt-1">{{ form.ubicacion_texto.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Row 4: Coordenadas GPS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="form-label-caps">Latitud</label>
+                    {{ form.latitud }}
+                    {% if form.latitud.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.latitud.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="space-y-2">
+                    <label class="form-label-caps">Longitud</label>
+                    {{ form.longitud }}
+                    {% if form.longitud.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.longitud.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Row 5: Descripción -->
+            <div class="space-y-2">
+                <label class="form-label-caps">Descripción <span class="text-rose-500">*</span></label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                <p class="text-rose-500 text-xs mt-1">{{ form.descripcion.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Row 6: Observaciones -->
+            <div class="space-y-2">
+                <label class="form-label-caps">Observaciones</label>
+                {{ form.observaciones }}
+                {% if form.observaciones.errors %}
+                <p class="text-rose-500 text-xs mt-1">{{ form.observaciones.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Row 7: Archivos de Evidencia -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="form-label-caps">Evidencia (Foto)</label>
+                    {{ form.evidencia_foto }}
+                    {% if form.evidencia_foto.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.evidencia_foto.errors.0 }}</p>
+                    {% endif %}
+                    {% if evento and evento.evidencia_foto %}
+                    <div class="space-y-2 mt-1 text-xs text-custom-tertiary">
+                        <p>Archivo actual: <a href="{{ evento.evidencia_foto.url }}" target="_blank" class="underline text-blue-600">{{ evento.evidencia_foto.name }}</a></p>
+                        <p>URL actual: <span class="break-all">{{ evento.evidencia_foto.url }}</span></p>
+                        {% if file_debug %}
+                        <p>Storage: {{ file_debug.storage_class }}</p>
+                        <p>Debug URL: {{ file_debug.file_url }}</p>
+                        {% endif %}
+                        {% if evento.evidencia_foto.url %}
+                        <img src="{{ evento.evidencia_foto.url }}" alt="Foto de evidencia" class="mt-2 max-h-40 rounded-lg border border-custom-ui" />
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="space-y-2">
+                    <label class="form-label-caps">Evidencia (Documento)</label>
+                    {{ form.evidencia_documento }}
+                    {% if form.evidencia_documento.errors %}
+                    <p class="text-rose-500 text-xs mt-1">{{ form.evidencia_documento.errors.0 }}</p>
+                    {% endif %}
+                    {% if evento and evento.evidencia_documento %}
+                    <p class="text-xs text-custom-tertiary mt-1">Archivo actual: <a href="{{ evento.evidencia_documento.url }}" target="_blank" class="underline text-blue-600">{{ evento.evidencia_documento.name }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4 pt-4 border-t border-custom-ui/10">
+                <button type="submit" class="btn btn-primary flex-1">
+                    {{ button_text }}
+                </button>
+                <a href="{% url 'dashboard_tracking' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

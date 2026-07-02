@@ -1,0 +1,141 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Directorio de Direcciones | Enviart{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 animate-in fade-in duration-700">
+    <!-- Header Section (Titles Only) -->
+    <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Directorio de Direcciones</h1>
+        <p class="text-custom-tertiary text-sm mt-1">Gestión centralizada de puntos de origen y destino de envíos.</p>
+    </div>
+
+    <!-- Barra de Búsqueda, Filtros y Acciones -->
+    <div class="bg-custom-surface-low p-6 rounded-2xl border border-custom-ui shadow-sm">
+        <form method="GET" class="flex flex-col md:flex-row gap-5 items-end">
+            <!-- Buscar -->
+            <div class="flex-1 space-y-2 w-full">
+                <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Buscar</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-custom-outline text-lg">search</span>
+                    <input type="text" name="q" value="{{ current_q|default:'' }}"
+                           placeholder="Calle, ciudad o contacto..."
+                           class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 pl-12 pr-4 text-sm text-custom-primary placeholder:text-custom-outline focus:ring-2 focus:ring-blue-500/20 transition-all shadow-inner focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Botones y Acciones Consolidadas -->
+            <div class="flex gap-2 h-[46px] items-center">
+                <button type="submit" class="h-full px-6 bg-custom-brand text-custom-on-brand font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center">
+                    Filtrar
+                </button>
+                <a href="{% url 'direcciones_list' %}" class="h-full w-12 bg-custom-surface-highest text-custom-primary border border-custom-ui rounded-2xl flex items-center justify-center hover:opacity-80 transition-colors" title="Limpiar">
+                    <span class="material-symbols-outlined">refresh</span>
+                </a>
+
+                <!-- Nueva Dirección Button -->
+                <a href="{% url 'direccion_create' %}" class="h-full px-6 bg-custom-primary text-custom-surface font-bold rounded-2xl hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-custom-primary/10">
+                    <span class="material-symbols-outlined">add_location_alt</span>
+                    <span class="hidden xl:inline">Nueva Dirección</span>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Container -->
+    <div class="bg-custom-surface rounded-3xl overflow-hidden shadow-sm border border-custom-ui">
+        <!-- Action Bar Info -->
+        <div class="px-8 py-5 border-b border-custom-ui flex items-center justify-between bg-custom-surface-low">
+            <div class="flex gap-4">
+                <div class="px-4 py-1.5 bg-blue-500/10 text-blue-600 text-[11px] font-bold uppercase tracking-[0.2em] rounded-full border border-blue-500/20">
+                    Total <span class="bg-blue-500/20 px-2 rounded opacity-80">{{ direcciones|length }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-custom-surface-low border-b border-custom-ui">
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Usuario</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Dirección</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Ciudad</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Contacto</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Principal</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-custom-ui/3">
+                    {% for dir in direcciones %}
+                    <tr class="hover:bg-custom-surface-low/50 transition-colors border-b border-custom-ui/3">
+                        <!-- Usuario -->
+                        <td class="px-8 py-7">
+                            <div class="flex items-center gap-3">
+                                <div class="h-10 w-10 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md bg-emerald-500">
+                                    {{ dir.usuario.primer_nombre|slice:":1" }}{{ dir.usuario.primer_apellido|slice:":1" }}
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-sm font-semibold text-custom-primary truncate">{{ dir.usuario.primer_nombre }} {{ dir.usuario.primer_apellido }}</div>
+                                    <div class="text-xs text-custom-outline/70 truncate">{{ dir.usuario.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Dirección -->
+                        <td class="px-8 py-7">
+                            <div class="text-sm text-custom-secondary">{{ dir.calle }} {{ dir.numero }}</div>
+                        </td>
+
+                        <!-- Ciudad -->
+                        <td class="px-8 py-7">
+                            <div class="text-sm text-custom-secondary">{{ dir.ciudad }}</div>
+                        </td>
+
+                        <!-- Contacto -->
+                        <td class="px-8 py-7">
+                            <div class="text-sm text-custom-secondary">{{ dir.nombre_contacto|default:"—" }}</div>
+                        </td>
+
+                        <!-- Principal -->
+                        <td class="px-8 py-7">
+                            {% if dir.es_principal %}
+                                <span class="px-3 py-1 rounded-md bg-emerald-500/15 text-emerald-600 text-[11px] font-bold uppercase tracking-wider border border-emerald-500/30">Principal</span>
+                            {% else %}
+                                <span class="px-3 py-1 rounded-md bg-amber-500/15 text-amber-600 text-[11px] font-bold uppercase tracking-wider border border-amber-500/30">Secundaria</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="px-8 py-7">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'direccion_update' dir.id %}"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-blue-600 hover:bg-blue-500/10 transition-all"
+                                   title="Edit address">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </a>
+                                <a href="{% url 'direccion_delete' dir.id %}"
+                                   onclick="return confirm('¿Estás seguro de eliminar esta dirección?')"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-rose-600 hover:bg-rose-500/10 transition-all"
+                                   title="Delete address">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-8 py-16 text-center">
+                            <div class="flex flex-col items-center gap-3 text-custom-outline/40">
+                                <svg class="w-12 h-12 opacity-30" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                                <span class="text-sm font-medium">No addresses found</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

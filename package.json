@@ -1,0 +1,13 @@
+{
+  "name": "enviart-dashboard",
+  "version": "1.0.0",
+  "description": "Django + Tailwind + Alpine Dashboard",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "tailwindcss -i static/css/input.css -o static/css/output.css",
+    "watch:css": "tailwindcss -i static/css/input.css -o static/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}

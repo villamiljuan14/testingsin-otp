@@ -1,0 +1,106 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Novedades | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="font-sora font-bold text-2xl">Novedades de Pedidos</h2>
+        <a href="{% url 'novedad_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold transition-colors">
+            + Registrar Novedad
+        </a>
+    </div>
+
+    <!-- Filtros y Exportación -->
+    <div class="filter-bar filter-bar--large flex flex-col lg:flex-row gap-4 items-end">
+        <form method="GET" class="flex flex-col md:flex-row flex-1 gap-4 w-full items-end">
+            <div class="flex-1 space-y-2 w-full">
+                <label class="form-label-caps ml-1">Buscar Novedad</label>
+                <div class="relative">
+                    <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Título o #Pedido..." 
+                           class="filter-input filter-input-search filter-input--lg w-full">
+                    <svg class="w-4 h-4 text-slate-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto h-[42px]">
+                <button type="submit" class="filter-button px-8 h-full shadow-lg shadow-blue-500/10">
+                    Filtrar
+                </button>
+                <a href="{% url 'novedades_list' %}" class="btn btn-secondary btn-icon h-full" title="Limpiar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </a>
+            </div>
+        </form>
+
+        <div class="relative w-full lg:w-auto h-[42px]" x-data="{ open: false }">
+            <button @click="open = !open" class="btn btn-secondary w-full h-full gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Exportar
+            </button>
+            <div x-show="open" @click.away="open = false" x-transition
+                class="absolute right-0 mt-2 w-48 bg-custom-surface border border-custom-ui/10 rounded-2xl shadow-2xl z-50 overflow-hidden py-2">
+                <a href="{% url 'export_novedades' 'pdf' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-rose-600 transition-colors">
+                    <span class="material-symbols-outlined text-rose-500">picture_as_pdf</span> PDF Documento
+                </a>
+                <a href="{% url 'export_novedades' 'xlsx' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-emerald-600 transition-colors">
+                    <span class="material-symbols-outlined text-emerald-500">table_view</span> Excel Listado
+                </a>
+                <a href="{% url 'export_novedades' 'csv' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-amber-600 transition-colors">
+                    <span class="material-symbols-outlined text-amber-500">csv</span> CSV Plano
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Novedades -->
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Título</th>
+                    <th>Tipo</th>
+                    <th>Usuario</th>
+                    <th class="text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in novedades %}
+                <tr>
+                    <td class="data-table-title text-blue-600">#{{ n.pedido.id }}</td>
+                    <td class="data-table-title">{{ n.titulo }}</td>
+                    <td>
+                        <span class="status-badge status-badge--warning">{{ n.tipo_novedad }}</span>
+                    </td>
+                    <td class="data-table-muted">{{ n.usuario.email|truncatechars:20 }}</td>
+                    <td class="text-right">
+                        <div class="flex justify-end gap-2">
+                            <a href="{% url 'novedad_update' n.id %}" class="action-btn" title="Editar">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </a>
+                            <a href="{% url 'novedad_delete' n.id %}" class="action-btn action-btn--delete" title="Eliminar" onclick="return confirm('¿Eliminar novedad {{ n.titulo }}?')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2.032 2.032 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="py-12">
+                        <div class="empty-state">
+                            <div class="empty-state__icon">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            </div>
+                            <p class="empty-state__title">No se registraron novedades</p>
+                            <a href="{% url 'novedad_create' %}" class="btn btn-primary">+ Nueva Novedad</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

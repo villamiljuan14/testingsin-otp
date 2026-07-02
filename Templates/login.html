@@ -1,0 +1,388 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'images/favicon.jpg' %}" type="image/jpeg">
+    <title>Iniciar Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+    <script src="{% static 'js/theme.js' %}"></script>
+</head>
+
+<body class="mesh-bg min-h-screen flex items-center justify-center p-4 bg-slate-50 text-slate-900">
+
+    <!-- Theme Toggle Floating -->
+    <button id="theme-toggle" class="theme-toggle fixed top-6 right-6 z-50 transition-all" title="Cambiar Tema">
+        <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+        <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path
+                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                fill-rule="evenodd" clip-rule="evenodd"></path>
+        </svg>
+    </button>
+
+    <div class="w-full max-w-4xl glass-panel rounded-3xl overflow-hidden shadow-2xl flex fade-up">
+
+        <!-- ── Panel izquierdo ── -->
+        <div
+            class="left-panel hidden md:flex flex-col items-center justify-center w-1/2 p-12 text-white relative overflow-hidden">
+            <!-- Decoración geométrica sutil -->
+            <div class="absolute top-8 left-8 w-24 h-24 rounded-full border border-white/10"></div>
+            <div class="absolute bottom-12 right-6 w-16 h-16 rounded-full border border-white/10"></div>
+
+            <div class="relative z-10 text-center">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-6 border border-white/20">
+                    <!-- Ícono de caja/envío -->
+                    <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-bold mb-3 tracking-tight">¡Bienvenido!</h2>
+                <p class="text-white/70 text-sm leading-relaxed mb-8">
+                    ¿No tienes cuenta?<br>Crea una y empieza a realizar envíos.
+                </p>
+                <a href="{% url 'register' %}"
+                    class="btn-register px-8 py-2.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl text-white text-sm font-semibold inline-block transition-all">
+                    Registrarse
+                </a>
+            </div>
+        </div>
+
+        <!-- ── Divisor vertical ── -->
+        <div class="hidden md:block w-px divider"></div>
+
+        <!-- ── Panel derecho (formulario) ── -->
+        <div class="w-full md:w-1/2 p-10 text-slate-900">
+
+            <!-- Logo -->
+            <div class="flex justify-center mb-8 fade-up delay-1">
+                <img src="{% static 'images/shiplog.png' %}" alt="Logo" class="logo-auth">
+            </div>
+
+            <h2 class="text-2xl font-bold mb-6 tracking-tight fade-up delay-1">Iniciar Sesión</h2>
+
+            <!-- Mensaje: registro exitoso -->
+            {% if request.GET.registroExitoso %}
+            <div class="alert alert-success fade-up delay-1">
+                ¡Registro exitoso! Por favor, inicia sesión con tu email y contraseña.
+            </div>
+            {% endif %}
+
+            <!-- Mensaje: error de credenciales -->
+            {% if request.GET.error or error_manual %}
+            <div class="alert alert-error fade-up delay-1">
+                Email o contraseña incorrectos.
+            </div>
+            {% endif %}
+
+            <!-- Mensaje: sesión cerrada -->
+            {% if request.GET.logout %}
+            <div class="alert alert-info fade-up delay-1">
+                Sesión cerrada correctamente.
+            </div>
+            {% endif %}
+
+            <!-- Mensajes de Django (framework de mensajes) -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert fade-up delay-1
+                    {% if message.tags == 'error' %}alert-error
+                    {% elif message.tags == 'success' %}alert-success
+                    {% else %}alert-info{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}" class="space-y-5 fade-up delay-2" id="loginForm">
+                {% csrf_token %}
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="field-label">Email</label>
+                    <input id="email" type="email" name="email" required autofocus placeholder="tucorreo@ejemplo.com"
+                        class="field">
+                </div>
+
+                <!-- Contraseña -->
+                <div>
+                    <label for="password" class="field-label">Contraseña</label>
+                    <input id="password" type="password" name="password" required class="field">
+                </div>
+
+                <!-- Recuérdame -->
+                <div class="flex items-center gap-2">
+                    <input id="remember_me" name="remember_me" type="checkbox"
+                        class="h-4 w-4 rounded cursor-pointer accent-blue-600">
+                    <label for="remember_me" class="field-label cursor-pointer select-none mb-0">Recuérdame</label>
+                </div>
+
+                <!-- Botón submit -->
+                <button type="submit" class="btn-primary w-full" id="loginBtn">Ingresar</button>
+
+                <!-- Enlace contraseña olvidada -->
+                <div class="text-center pt-1">
+                    <a href="{% url 'forgot_password' %}" class="link-accent text-sm">¿Olvidaste tu contraseña?</a>
+                </div>
+            </form>
+
+            <!-- Sección OTP (oculta inicialmente) -->
+            <div id="otpSection" class="hidden space-y-5 fade-up delay-2 p-5 rounded-3xl border border-slate-200 bg-slate-50 text-slate-900 shadow-lg shadow-slate-900/10">
+                <div class="text-center mb-4">
+                    <p class="text-slate-900 text-sm">Se envió un código a <span id="otpEmail" class="font-semibold"></span></p>
+                    <p class="text-slate-600 text-xs mt-1">Ingresa el código de 6 dígitos para continuar</p>
+                </div>
+
+                <!-- Cuadros individuales para el código OTP -->
+                <div class="flex justify-center gap-2" id="otpInputs">
+                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="0">
+                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="1">
+                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="2">
+                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="3">
+                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="4">
+                    <input type="text" maxlength="1" class="otp-input w-12 h-12 text-center text-xl font-bold rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none" data-index="5">
+                </div>
+
+                <!-- Botón verificar OTP -->
+                <button type="button" id="verifyOtpBtn" class="btn-primary w-full">Verificar Código</button>
+
+                <!-- Reenviar código -->
+                <div class="text-center">
+                    <button type="button" id="resendOtpBtn" class="link-accent text-sm disabled:opacity-50" disabled>
+                        Reenviar código (<span id="resendTimer">60</span>s)
+                    </button>
+                </div>
+
+                <!-- Volver al login -->
+                <div class="text-center pt-2">
+                    <button type="button" id="backToLoginBtn" class="text-slate-600 text-sm hover:text-slate-900 transition-colors">
+                        ← Volver al login
+                    </button>
+                </div>
+            </div>
+
+            <!-- Link móvil para registro -->
+            <p class="md:hidden auth-footer-text fade-up delay-3">
+                ¿No tienes cuenta?
+                <a href="{% url 'register' %}" class="link-accent font-medium">Regístrate</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script>
+        // Variables globales para OTP
+        let accessToken = '';
+        let userEmail = '';
+
+        // Manejo de cuadros individuales OTP
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            
+            otpInputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    // Solo permitir números
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Auto-focus al siguiente input
+                    if (this.value.length === 1 && index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    // Backspace para ir al input anterior
+                    if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                });
+                
+                // Pegar código completo
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                    pastedData.split('').forEach((char, i) => {
+                        if (i < otpInputs.length) {
+                            otpInputs[i].value = char;
+                        }
+                    });
+                    if (pastedData.length === 6) {
+                        otpInputs[5].focus();
+                    }
+                });
+            });
+
+            // Manejo del login
+            const loginForm = document.getElementById('loginForm');
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const apiUrl = '/api/auth/login/';
+                
+                try {
+                    // Login normal para obtener tokens JWT
+                    console.log('Login API URL:', apiUrl);
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        accessToken = data.access;
+                        userEmail = email;
+                        
+                        // Enviar OTP
+                        await sendOTP();
+                        
+                        // Mostrar sección OTP
+                        document.getElementById('loginForm').classList.add('hidden');
+                        document.getElementById('otpSection').classList.remove('hidden');
+                        document.getElementById('otpEmail').textContent = email;
+                        
+                        // Iniciar timer de reenvío
+                        startResendTimer();
+                    } else {
+                        alert('Error: ' + JSON.stringify(data));
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    alert('Error de conexión: ' + error.message + '\nURL: ' + apiUrl);
+                }
+            });
+
+            // Verificar OTP
+            document.getElementById('verifyOtpBtn').addEventListener('click', async function() {
+                const otpInputs = document.querySelectorAll('.otp-input');
+                let code = '';
+                otpInputs.forEach(input => code += input.value);
+                
+                if (code.length !== 6) {
+                    alert('Ingresa el código completo de 6 dígitos');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/otp/email/verify/', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: JSON.stringify({ code })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // OTP verificado, actualizar token
+                        accessToken = data.access;
+                        
+                        // Establecer sesión de Django
+                        const sessionResponse = await fetch('/api/auth/otp-login/', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${accessToken}`
+                            }
+                        });
+                        
+                        const sessionData = await sessionResponse.json();
+                        
+                        if (sessionResponse.ok && sessionData.success) {
+                            // Redirigir al dashboard
+                            window.location.href = sessionData.redirect;
+                        } else {
+                            alert('Error al establecer sesión: ' + (sessionData.error || 'Desconocido'));
+                        }
+                    } else {
+                        alert('Código incorrecto: ' + data.message);
+                        // Limpiar inputs
+                        otpInputs.forEach(input => input.value = '');
+                        otpInputs[0].focus();
+                    }
+                } catch (error) {
+                    alert('Error de conexión: ' + error.message);
+                }
+            });
+
+            // Reenviar OTP
+            document.getElementById('resendOtpBtn').addEventListener('click', async function() {
+                await sendOTP();
+                startResendTimer();
+                alert('Código reenviado');
+            });
+
+            // Volver al login
+            document.getElementById('backToLoginBtn').addEventListener('click', function() {
+                document.getElementById('otpSection').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+                accessToken = '';
+                userEmail = '';
+                // Limpiar inputs OTP
+                document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+            });
+        });
+
+        async function sendOTP() {
+            try {
+                const response = await fetch('/api/otp/email/send/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+                    },
+                    body: JSON.stringify({ email: userEmail || document.getElementById('email').value.trim() })
+                });
+                
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Error al enviar OTP');
+                }
+            } catch (error) {
+                console.error('Error enviando OTP:', error);
+                throw error;
+            }
+        }
+
+        function startResendTimer() {
+            const resendBtn = document.getElementById('resendOtpBtn');
+            const timerSpan = document.getElementById('resendTimer');
+            let seconds = 60;
+            
+            resendBtn.disabled = true;
+            
+            const interval = setInterval(() => {
+                seconds--;
+                timerSpan.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'Reenviar código';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>

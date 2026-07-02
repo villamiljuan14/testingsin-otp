@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="{% static 'images/favicon.jpg' %}" type="image/svg+xml">
+    <meta name="description" content="Enviart: mensajería de mercancías rápida, segura y con cobertura nacional.">
+
+    <title>Enviart | Mensajería de Mercancías</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <script src="{% static 'js/theme.js' %}"></script>
+    <style>
+        /* Ajuste rápido para que el icono se vea blanco y centrado */
+        .service-card__icon-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="container nav-content">
+            <a href="{% url 'home' %}" class="logo">
+                <img src="{% static 'images/shiplog.png' %}" alt="Logo Enviart" class="logo-img">
+                <span>Enviart</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{% url 'home' %}" class="nav-link">Inicio</a>
+                <a href="{% url 'servicios' %}" class="nav-link">Servicios</a>
+                <a href="{% url 'rastrear' %}" class="nav-link">Rastrear Envío</a>
+                <a href="{% url 'contacto' %}" class="nav-link">Contacto</a>
+            </nav>
+
+            <div class="nav-buttons">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar modo de color">
+                    <svg id="moon-icon" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg id="sun-icon" class="hidden" viewBox="0 0 20 20">
+                        <path
+                            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                            fill-rule="evenodd" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+
+                {% if user.is_authenticated %}
+                <div class="user-nav-info">
+                    <div class="user-nav-text">
+                        <div class="user-nav-name">{{ user.primer_nombre }} {{ user.primer_apellido|default:'' }}</div>
+                        <div class="user-nav-role">{{ user.rol.nombre_rol|default:'Sin Rol' }}</div>
+                    </div>
+                    <form method="post" action="{% url 'logout' %}" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline btn-logout">Cerrar sesión</button>
+                    </form>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline">Ingresar</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <section class="carousel-section">
+        <div id="carousel" class="carousel-slides">
+            <div class="carousel-slide hero-slide active">
+                <img src="{% static 'images/bogota.jpg' %}" alt="Envíos Express" class="slide-image">
+                <div class="slide-content">
+                    <h1 class="slide-title">Cobertura Nacional</h1>
+                    <p class="slide-text">Llegamos a todas las ciudades, sin importar el tamaño.</p>
+                    <div class="hero-actions">
+                        <a href="{% url 'rastrear' %}" class="btn btn-primary btn-hero-lg">Rastrear mi envío</a>
+                        <a href="{% url 'servicios' %}" class="btn btn--hero-secondary">Ver servicios</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-slide hero-slide">
+                <img src="{% static 'images/Medellin.jpeg' %}" alt="Logística Avanzada" class="slide-image">
+                <div class="slide-content">
+                    <h1 class="slide-title">Logística Inteligente</h1>
+                    <p class="slide-text">Eficiencia y rapidez en cada entrega.</p>
+                    <div class="hero-actions">
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-hero-lg">Empezar ahora</a>
+                        <a href="{% url 'contacto' %}" class="btn btn--hero-secondary">Contactar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="prev" class="carousel-btn prev-btn" aria-label="Anterior">&lt;</button>
+        <button id="next" class="carousel-btn next-btn" aria-label="Siguiente">&gt;</button>
+
+        <div class="hero-dots" role="tablist" aria-label="Slides del hero">
+            <button class="hero-dot active" role="tab" aria-selected="true" aria-label="Slide 1 de 2"></button>
+            <button class="hero-dot" role="tab" aria-selected="false" aria-label="Slide 2 de 2"></button>
+        </div>
+    </section>
+
+    <div class="container">
+        <h2 class="section-title">Estadísticas de Operación</h2>
+        <div class="dashboard-grid">
+            <div id="estadisticas-chart"></div>
+            <div id="mapaBogota"></div>
+        </div>
+
+        <h2 class="section-title">Destacados</h2>
+        <div class="cards-grid">
+            <div class="card service-card">
+                <div class="service-card__img-wrapper">
+                    <img src="{% static 'images/bogotamin.avif' %}" alt="Express" class="card-img">
+                    <div class="service-card__icon-badge">
+                        <span class="material-symbols-outlined">rocket_launch</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3 class="service-card__title">Envíos Express</h3>
+                    <p class="service-card__desc">Entrega en menos de 24 horas en ciudades principales.</p>
+                    <a href="{% url 'servicios' %}" class="btn btn-primary btn-card">Ver más</a>
+                </div>
+            </div>
+
+            <div class="card service-card">
+                <div class="service-card__img-wrapper">
+                    <img src="{% static 'images/Medellinmin.avif' %}" alt="Corporativo" class="card-img">
+                    <div class="service-card__icon-badge">
+                        <span class="material-symbols-outlined">corporate_fare</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3 class="service-card__title">Soluciones Corporativas</h3>
+                    <p class="service-card__desc">Logística integral para tu empresa o emprendimiento.</p>
+                    <a href="{% url 'contacto' %}" class="btn btn-primary btn-card">Ver más</a>
+                </div>
+            </div>
+
+            <div class="card service-card">
+                <div class="service-card__img-wrapper">
+                    <img src="{% static 'images/calimin.avif' %}" alt="Rastreo" class="card-img">
+                    <div class="service-card__icon-badge">
+                        <span class="material-symbols-outlined">precision_manufacturing</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3 class="service-card__title">Rastreo Predictivo</h3>
+                    <p class="service-card__desc">IA aplicada para predecir tiempos exactos de entrega.</p>
+                    <a href="{% url 'rastrear' %}" class="btn btn-primary btn-card">Ver más</a>
+                </div>
+            </div>
+        </div>
+
+        <section class="search-section">
+            <h2 class="section-title search-title">Rastrea tu envío ahora</h2>
+            <p class="section-text search-text">Ingresa el número de guía para conocer el estado actual.</p>
+            <form action="{% url 'rastrear' %}" method="get" class="search-form">
+                <input type="text" name="guia" placeholder="Ej: EN-123456" class="search-input" required>
+                <button type="submit" class="btn btn-primary">Rastrear</button>
+            </form>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h3 class="footer-title footer__heading">Enviart</h3>
+                <p class="footer-text">Tu aliado estratégico en logística y mensajería nacional.</p>
+            </div>
+            <div class="footer-col">
+                <h3 class="footer-title footer__heading">Mapa del Sitio</h3>
+                <ul class="footer-links">
+                    <li><a href="{% url 'home' %}" class="footer-link">Inicio</a></li>
+                    <li><a href="{% url 'servicios' %}" class="footer-link">Servicios</a></li>
+                    <li><a href="{% url 'rastrear' %}" class="footer-link">Rastreo</a></li>
+                    <li><a href="{% url 'contacto' %}" class="footer-link">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3 class="footer-title footer__heading">Legal</h3>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">Términos y condiciones</a></li>
+                    <li><a href="#" class="footer-link">Política de privacidad</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 Enviart Logistic. Diseñado con excelencia.
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>

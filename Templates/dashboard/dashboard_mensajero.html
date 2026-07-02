@@ -1,0 +1,86 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Dashboard Mensajero | Enviart{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="page-title">Panel de Mensajero</h1>
+            <p class="page-subtitle">Gestiona tus entregas y rutas asignadas.</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Entregas Hoy</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ entregas_hoy|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <span class="material-symbols-outlined">pending_actions</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Pendientes</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ pendientes|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Completadas</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ completadas|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui/5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-600">
+                    <span class="material-symbols-outlined">route</span>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-custom-tertiary uppercase">Rutas Activas</p>
+                    <h3 class="text-2xl font-black text-custom-primary">{{ rutas_activas|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="bg-custom-surface rounded-2xl border border-custom-ui/5 p-6">
+        <h2 class="text-lg font-bold text-custom-primary mb-4">Accesos Rápidos</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'mis_entregas' %}" class="flex items-center gap-3 p-4 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors">
+                <span class="material-symbols-outlined text-blue-600">delivery_dining</span>
+                <span class="font-medium text-custom-primary">Mis Entregas</span>
+            </a>
+            <a href="{% url 'rutas_asignadas' %}" class="flex items-center gap-3 p-4 rounded-xl bg-purple-500/5 hover:bg-purple-500/10 transition-colors">
+                <span class="material-symbols-outlined text-purple-600">map</span>
+                <span class="font-medium text-custom-primary">Rutas Asignadas</span>
+            </a>
+            <a href="{% url 'tracking_create' %}" class="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
+                <span class="material-symbols-outlined text-emerald-600">qr_code_scanner</span>
+                <span class="font-medium text-custom-primary">Escanear QR</span>
+            </a>
+            <a href="{% url 'perfil' %}" class="flex items-center gap-3 p-4 rounded-xl bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
+                <span class="material-symbols-outlined text-gray-600">person</span>
+                <span class="font-medium text-custom-primary">Mi Perfil</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

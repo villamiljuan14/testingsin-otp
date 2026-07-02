@@ -1,0 +1,66 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Eliminar Evento de Tracking | Enviart{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 max-w-2xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <a href="{% url 'dashboard_tracking' %}" class="btn btn-secondary btn-icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        </a>
+        <div>
+            <h1 class="page-title">Eliminar Evento de Tracking</h1>
+            <p class="page-subtitle">Confirma que deseas eliminar este registro permanentemente.</p>
+        </div>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="bg-rose-500/5 rounded-2xl border border-rose-500/20 p-8 text-center">
+        <div class="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-rose-500 text-3xl">warning</span>
+        </div>
+        
+        <h2 class="text-xl font-bold text-custom-primary mb-2">¿Estás seguro?</h2>
+        <p class="text-custom-secondary mb-6">
+            Esta acción eliminará permanentemente el evento de tracking 
+            <strong class="text-custom-primary">#{{ evento.id }}</strong> del pedido
+            <strong class="text-custom-primary">{% if evento.pedido %}{{ evento.pedido.numero_pedido }}{% else %}N/A{% endif %}</strong>.
+            Esta acción no se puede deshacer.
+        </p>
+
+        <div class="bg-custom-surface rounded-xl p-4 mb-6 text-left">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <span class="text-custom-tertiary">Tipo de Evento:</span>
+                    <p class="font-medium text-custom-primary">{{ evento.get_tipo_evento_display }}</p>
+                </div>
+                <div>
+                    <span class="text-custom-tertiary">Fecha de Registro:</span>
+                    <p class="font-medium text-custom-primary">{{ evento.fecha_registro|date:"d/m/Y H:i" }}</p>
+                </div>
+                <div>
+                    <span class="text-custom-tertiary">Ubicación:</span>
+                    <p class="font-medium text-custom-primary">{{ evento.ubicacion_texto|default:"—" }}</p>
+                </div>
+                <div>
+                    <span class="text-custom-tertiary">Registrado Por:</span>
+                    <p class="font-medium text-custom-primary">{{ evento.registrado_por.primer_nombre|default:"Sistema" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" class="flex gap-4 justify-center">
+            {% csrf_token %}
+            <button type="submit" class="btn bg-rose-500 hover:bg-rose-600 text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Eliminar Permanentemente
+            </button>
+            <a href="{% url 'dashboard_tracking' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

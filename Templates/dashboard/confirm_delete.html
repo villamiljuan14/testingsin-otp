@@ -1,0 +1,28 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}{{ title }} | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-lg mx-auto mt-12 text-center">
+    <div class="delete-confirm-icon-wrapper">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    </div>
+    <h2 class="section-title mb-4">¿Confirmas la eliminación?</h2>
+    <p class="data-table-muted mb-8">
+        Estás a punto de eliminar <strong>{{ object }}</strong>. 
+        Esta acción no se puede deshacer.
+    </p>
+    
+    <div class="flex flex-col gap-3">
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn-destructive-lg">
+                Sí, eliminar definitivamente
+            </button>
+        </form>
+        <button onclick="history.back()" class="btn btn-secondary w-full py-3">
+            No, cancelar
+        </button>
+    </div>
+</div>
+{% endblock %}

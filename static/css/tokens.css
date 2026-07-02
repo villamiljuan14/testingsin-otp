@@ -1,0 +1,154 @@
+/* ============================================================
+   ENVIART DESIGN TOKENS — Single Source of Truth
+   Modo Día: :root / [data-theme="light"]
+   Modo Noche: [data-theme="dark"]
+   ============================================================ */
+
+:root,
+[data-theme="light"] {
+  /* ── Superficies ── */
+  --surface-page:          #f0f2f5;
+  --surface-sidebar:       #ffffff;
+  --surface-topbar:        #ffffff;
+  --surface-card:          #ffffff;
+  --surface-card-alt:      #f9fafb;
+  --surface-card-hover:    #f5f7ff;
+  --surface-table:         #ffffff;
+  --surface-table-header:  #f9fafb;
+  --surface-table-row-alt: #fafbfc;
+  --surface-row-hover:     #f0f4ff;
+
+  /* ── Bordes ── */
+  --border-ui:             #e5e7eb;
+  --border-strong:         #d1d5db;
+  --border-subtle:         #f3f4f6;
+
+  /* ── Tipografía ── */
+  --text-primary:          #1a1a2e;
+  --text-secondary:        #6b7280;
+  --text-tertiary:         #9ca3af;
+  --text-on-dark:          #ffffff;
+
+  /* ── Pesos Tipográficos ── */
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+
+  /* ── Marca ── */
+  --color-brand:           #1B6BF5;
+  --color-brand-hover:     #1558d6;
+  --color-brand-light:     #EEF3FE;
+  --color-brand-text:      #1D4ED8;
+
+  /* ── Semánticos ── */
+  --color-success:         #1D9E75;
+  --color-success-bg:      #E1F5EE;
+  --color-success-text:    #085041;
+
+  --color-warning:         #EF9F27;
+  --color-warning-bg:      #FAEEDA;
+  --color-warning-text:    #633806;
+
+  --color-danger:          #E24B4A;
+  --color-danger-bg:       #FCEBEB;
+  --color-danger-text:     #791F1F;
+
+  --color-info:            #1B6BF5;
+  --color-info-bg:         #EEF3FE;
+  --color-info-text:       #1D4ED8;
+
+  /* ── Efectos ── */
+  --accent-glow:           rgba(27, 107, 245, 0.12);
+  --shadow-card:           0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover:     0 12px 24px -10px rgba(27, 107, 245, 0.15);
+
+  /* ── Formularios ── */
+  --input-bg:              #ffffff;
+  --input-border:          #d1d5db;
+  --input-border-focus:    #1B6BF5;
+  --input-text:            #1a1a2e;
+  --input-placeholder:     #9ca3af;
+
+  /* ── Escala tipográfica ── */
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-lg:   18px;
+  --text-xl:   28px;
+
+  /* ── Espaciado ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --gap-sm:    8px;
+  --gap-md:    16px;
+  --gap-lg:    24px;
+
+  /* ── Transiciones ── */
+  --transition-base: 150ms ease;
+}
+
+[data-theme="dark"] {
+  /* ── Superficies ── */
+  --surface-page:          #0f1117;
+  --surface-sidebar:       #0a0d13;
+  --surface-topbar:        #0f1117;
+  --surface-card:          #1e293b;
+  --surface-card-alt:      #243049;
+  --surface-card-hover:    #2d3748;
+  --surface-table:         #1e293b;
+  --surface-table-header:  #1a2537;
+  --surface-table-row-alt: #1c2740;
+  --surface-row-hover:     rgba(255, 255, 255, 0.04);
+
+  /* ── Bordes ── */
+  --border-ui:             #1f2133;
+  --border-strong:         #2a2d45;
+  --border-subtle:         rgba(255, 255, 255, 0.05);
+
+  /* ── Tipografía ── */
+  --text-primary:          #f9fafb;
+  --text-secondary:        #9ca3af;
+  --text-tertiary:         #6b7280;
+  --text-on-dark:          #ffffff;
+
+  /* ── Pesos ── */
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+
+  /* ── Marca ── */
+  --color-brand:           #1B6BF5;
+  --color-brand-hover:     #3b82f6;
+  --color-brand-light:     #1e2a4a;
+  --color-brand-text:      #60a5fa;
+
+  /* ── Semánticos ── */
+  --color-success:         #1D9E75;
+  --color-success-bg:      #04342C;
+  --color-success-text:    #9FE1CB;
+
+  --color-warning:         #EF9F27;
+  --color-warning-bg:      #412402;
+  --color-warning-text:    #FAC775;
+
+  --color-danger:          #F09595;
+  --color-danger-bg:       #501313;
+  --color-danger-text:     #F7C1C1;
+
+  --color-info:            #60a5fa;
+  --color-info-bg:         #1e2a4a;
+  --color-info-text:       #93c5fd;
+
+  /* ── Efectos ── */
+  --accent-glow:           rgba(27, 107, 245, 0.18);
+  --shadow-card:           0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover:     0 12px 24px -10px rgba(27, 107, 245, 0.25);
+
+  /* ── Formularios ── */
+  --input-bg:              #1e293b;
+  --input-border:          #2a2d45;
+  --input-border-focus:    #3b82f6;
+  --input-text:            #f9fafb;
+  --input-placeholder:     #4b5563;
+}

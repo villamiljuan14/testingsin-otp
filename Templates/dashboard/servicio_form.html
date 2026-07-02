@@ -1,0 +1,117 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Enviart Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+
+    <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <a href="{% url 'dashboard_servicios' %}" class="h-8 w-8 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-custom-brand transition-all">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                </a>
+                <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">{{ title }}</h1>
+            </div>
+            <p class="text-custom-tertiary text-sm ml-11">{% if servicio %}Configuración del servicio: {{ servicio.nombre }}{% else %}Defina un nuevo nivel de servicio logístico.{% endif %}</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ FORM CARD ════════════════════════════════ -->
+    <div class="bg-custom-surface-low rounded-3xl border border-custom-ui shadow-xl overflow-hidden">
+        <form method="POST" class="p-8 md:p-10 space-y-8">
+            {% csrf_token %}
+
+            <!-- Sección: Definición General -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 pb-2 border-b border-custom-ui/30">
+                    <span class="material-symbols-outlined text-custom-brand">category</span>
+                    <h2 class="text-lg font-bold text-custom-primary">Información del Servicio</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Nombre Comercial</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Código (ID)</label>
+                        {{ form.codigo }}
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Descripción</label>
+                        {{ form.descripcion }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección: Tarifas y Límites -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 pb-2 border-b border-custom-ui/30">
+                    <span class="material-symbols-outlined text-custom-brand">payments</span>
+                    <h2 class="text-lg font-bold text-custom-primary">Tarifas y Restricciones</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Costo Base ($)</label>
+                        {{ form.costo_base }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Costo x Kg ($)</label>
+                        {{ form.costo_por_kg }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Peso Máx (kg)</label>
+                        {{ form.peso_max_kg }}
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Días Mínimos</label>
+                        {{ form.dias_entrega_min }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-widest ml-1">Días Máximos</label>
+                        {{ form.dias_entrega_max }}
+                    </div>
+                    <div class="pt-6">
+                        <div class="flex items-center gap-3 bg-custom-surface rounded-xl p-3 border border-custom-ui/50">
+                            {{ form.es_garantizado }}
+                            <label class="text-xs font-bold text-custom-secondary">Entrega Garantizada</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección: Alcance y Estádus -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-custom-surface rounded-2xl p-6 border border-custom-ui/30 shadow-inner">
+                <div class="flex items-center gap-3">
+                    {{ form.es_activo }}
+                    <label class="text-sm font-bold text-custom-secondary">Servicio Activo</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    {{ form.es_nacional }}
+                    <label class="text-sm font-bold text-custom-secondary">Nacional</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    {{ form.es_internacional }}
+                    <label class="text-sm font-bold text-custom-secondary">Internacional</label>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="pt-6 flex flex-col md:flex-row gap-4 items-center border-t border-custom-ui/30">
+                <button type="submit" class="w-full md:w-auto px-12 h-14 bg-custom-brand text-custom-on-brand font-black rounded-2xl shadow-xl hover:translate-y-[-2px] transition-all uppercase tracking-widest text-sm">
+                    {{ button_text }}
+                </button>
+                <a href="{% url 'dashboard_servicios' %}" class="w-full md:w-auto px-8 h-14 flex items-center justify-center text-custom-tertiary font-bold hover:text-custom-primary transition-colors">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
