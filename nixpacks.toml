@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = ["python3", "python3Packages.pip"]
+
+[phases.install]
+cmds = [
+  "pip install -r requirements.txt"
+]
+
+[phases.build]
+cmds = [
+  "python manage.py collectstatic --no-input"
+]
+
+[start]
+cmd = "python -m daphne -b 0.0.0.0 -p $PORT config.asgi:application"
+
+[variables]
+DJANGO_SETTINGS_MODULE = "config.settings.railway"
