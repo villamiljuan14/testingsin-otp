@@ -3,7 +3,7 @@ builder = "dockerfile"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "python manage.py migrate --no-input && python -m daphne -b 0.0.0.0 -p $PORT config.asgi:application"
-healthcheckPath = "/api/auth/login/"
+startCommand = "bash start.sh"
+healthcheckPath = "/health/"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"

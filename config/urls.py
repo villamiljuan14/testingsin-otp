@@ -14,6 +14,9 @@ def dummy_view(request):
     return HttpResponse("Página en construcción")
 
 urlpatterns = [
+    # Health check para Railway (GET → 200 OK)
+    path('health/', lambda request: HttpResponse('OK'), name='health'),
+
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
     path('servicios/', TemplateView.as_view(template_name='servicios.html'), name='servicios'),
