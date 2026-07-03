@@ -77,15 +77,6 @@
                         </a>
                     </div>
                 </div>
-
-                <!-- Items por Página Selector -->
-                <select name="per_page" onchange="this.form.submit()" class="h-full px-4 bg-custom-surface border border-custom-ui rounded-2xl text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
-                    <option value="5" {% if items_por_pagina == 5 %}selected{% endif %}>5 por página</option>
-                    <option value="10" {% if items_por_pagina == 10 %}selected{% endif %}>10 por página</option>
-                    <option value="15" {% if items_por_pagina == 15 %}selected{% endif %}>15 por página</option>
-                    <option value="20" {% if items_por_pagina == 20 %}selected{% endif %}>20 por página</option>
-                </select>
-
                 <!-- Botón Primario Unificado -->
                 <a href="{% url 'usuario_create' %}" class="h-full px-6 bg-custom-primary text-custom-surface font-bold rounded-2xl hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-custom-primary/10">
                     <span class="material-symbols-outlined">person_add</span>

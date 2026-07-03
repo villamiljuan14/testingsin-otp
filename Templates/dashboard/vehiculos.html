@@ -1,42 +1,33 @@
 {% extends "dashboard/base_dashboard.html" %}
-{% load static %}
 
 {% block title %}Flota de Vehículos | Enviart Dashboard{% endblock %}
 
 {% block dashboard_content %}
 <div class="space-y-8 animate-in fade-in duration-700">
-
-    <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Gestión de Flota</h1>
-            <p class="text-custom-tertiary text-sm mt-1">Monitoreo y administración de activos vehiculares.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{% url 'vehiculo_create' %}" class="h-12 px-6 bg-custom-brand text-custom-on-brand font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined">directions_car</span>
-                Nuevo Vehículo
-            </a>
-        </div>
+    <!-- Header -->
+    <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Gestión de Flota</h1>
+        <p class="text-custom-tertiary text-sm mt-1">Monitoreo y administración de activos vehiculares.</p>
     </div>
 
-    <!-- ═══════════════════════════════════ FILTROS ══════════════════════════════════ -->
+    <!-- Filtros -->
     <div class="bg-custom-surface-low p-6 rounded-2xl border border-custom-ui shadow-sm">
-        <form method="GET" class="flex flex-col lg:flex-row gap-5 items-end">
+        <form method="GET" class="flex flex-col md:flex-row gap-5 items-end">
+            <!-- Buscar -->
             <div class="flex-1 space-y-2 w-full">
                 <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Buscar Vehículo</label>
                 <div class="relative">
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-custom-outline text-lg">search</span>
-                    <input type="text" name="q" value="{{ request.GET.q|default:'' }}"
+                    <input type="text" name="q" value="{{ current_q }}"
                         placeholder="Placa, Marca, Modelo..."
                         class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 pl-12 pr-4 text-sm text-custom-primary placeholder:text-custom-outline focus:ring-2 focus:ring-blue-500/20 transition-all shadow-inner focus:outline-none">
                 </div>
             </div>
 
+            <!-- Estado -->
             <div class="w-full md:w-52 space-y-2">
                 <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Estado Operativo</label>
-                <select name="estado"
-                    class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 px-4 text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
+                <select name="estado" class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 px-4 text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
                     <option value="">Todos los Estados</option>
                     {% for val, label in estados %}
                     <option value="{{ val }}" {% if current_estado == val %}selected{% endif %}>{{ label }}</option>
@@ -44,135 +35,216 @@
                 </select>
             </div>
 
-            <div class="flex gap-2 h-[46px] items-center flex-shrink-0 w-full lg:w-auto">
-                <button type="submit"
-                    class="flex-1 lg:flex-none h-full px-8 bg-custom-brand text-custom-on-brand font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center">
+            <!-- Botones -->
+            <div class="flex gap-2 h-[46px] items-center">
+                <button type="submit" class="h-full px-6 bg-custom-brand text-custom-on-brand font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center">
                     Filtrar
                 </button>
-                <a href="{% url 'vehiculos_list' %}" class="h-full w-12 bg-custom-surface-highest text-custom-primary border border-custom-ui rounded-2xl flex items-center justify-center hover:opacity-80 transition-colors">
+                <a href="{% url 'vehiculos_list' %}" class="h-full w-12 bg-custom-surface-highest text-custom-primary border border-custom-ui rounded-2xl flex items-center justify-center hover:opacity-80 transition-colors" title="Limpiar">
                     <span class="material-symbols-outlined">refresh</span>
+                </a>
+
+                <div class="h-full relative" x-data="{ open: false }">
+                    <button @click="open = !open" @click.away="open = false" type="button" class="h-full px-5 bg-custom-surface-low text-custom-primary font-bold border border-custom-ui/10 rounded-2xl flex items-center gap-2 hover:bg-custom-surface-highest transition-all shadow-sm">
+                        <span class="material-symbols-outlined">download</span>
+                        <span>Exportar</span>
+                        <span class="material-symbols-outlined text-xs transition-transform" :class="open ? 'rotate-180' : ''">expand_more</span>
+                    </button>
+                    <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-custom-surface border border-custom-ui/10 rounded-2xl shadow-2xl z-50 overflow-hidden py-2" style="display: none;">
+                        <a href="{% url 'export_vehiculos' 'pdf' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-rose-600 transition-colors">
+                            <span class="material-symbols-outlined text-rose-500">picture_as_pdf</span> PDF Documento
+                        </a>
+                        <a href="{% url 'export_vehiculos' 'xlsx' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-emerald-600 transition-colors">
+                            <span class="material-symbols-outlined text-emerald-500">table_view</span> Excel Listado
+                        </a>
+                        <a href="{% url 'export_vehiculos' 'csv' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-amber-600 transition-colors">
+                            <span class="material-symbols-outlined text-amber-500">csv</span> CSV Plano
+                        </a>
+                    </div>
+                </div>
+
+                <a href="{% url 'vehiculo_create' %}" class="h-full px-6 bg-custom-primary text-custom-surface font-bold rounded-2xl hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-custom-primary/10">
+                    <span class="material-symbols-outlined">directions_car</span>
+                    <span class="hidden xl:inline">Nuevo Vehículo</span>
                 </a>
             </div>
         </form>
     </div>
 
-    <!-- ═══════════════════════════════ KPI GRID ══════════════════════════════ -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm relative overflow-hidden">
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
-                    <span class="material-symbols-outlined">local_shipping</span>
+    <!-- Table Container -->
+    <div class="bg-custom-surface rounded-3xl overflow-hidden shadow-sm border border-custom-ui">
+        <!-- Stats Bar -->
+        <div class="px-8 py-5 border-b border-custom-ui flex items-center justify-between bg-custom-surface-low">
+            <div class="flex gap-4">
+                <div class="px-4 py-1.5 bg-blue-500/10 text-blue-600 text-[11px] font-bold uppercase tracking-[0.2em] rounded-full border border-blue-500/20 flex items-center gap-2">
+                    Toda la Flota <span class="bg-blue-500/20 px-2 rounded opacity-80">{{ stats.total }}</span>
                 </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Total Flota</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.total }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm relative overflow-hidden">
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-                    <span class="material-symbols-outlined">task_alt</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Disponibles</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.disponibles }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm relative overflow-hidden">
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-                    <span class="material-symbols-outlined">route</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">En Ruta</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.en_ruta }}</h3>
+                <div class="flex items-center gap-6 ml-6">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="text-[11px] font-bold text-custom-outline uppercase tracking-wider">Disponibles: {{ stats.disponibles }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span class="text-[11px] font-bold text-custom-outline uppercase tracking-wider">En Ruta: {{ stats.en_ruta }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span class="text-[11px] font-bold text-custom-outline uppercase tracking-wider">Mantenimiento: {{ stats.mantenimiento }}</span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm relative overflow-hidden">
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-600">
-                    <span class="material-symbols-outlined">build</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">En Taller</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.mantenimiento }}</h3>
-                </div>
-            </div>
+
+        <!-- Data Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-custom-surface-low border-b border-custom-ui">
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Vehículo</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Placa / Tipo</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Capacidad</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Año</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Estado</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-custom-ui/3">
+                    {% for v in page_obj %}
+                    <tr class="hover:bg-custom-surface-low/50 transition-colors border-b border-custom-ui/3">
+                        <!-- Vehículo -->
+                        <td class="px-8 py-7">
+                            <div class="flex items-center gap-4">
+                                <div class="h-12 w-12 rounded-lg flex items-center justify-center text-custom-brand shadow-md flex-shrink-0 bg-custom-surface-low border border-custom-ui">
+                                    <span class="material-symbols-outlined text-xl">
+                                        {% if v.tipo_vehiculo == 'MOTO' %}motorcycle{% elif v.tipo_vehiculo == 'VAN' %}airport_shuttle{% else %}local_shipping{% endif %}
+                                    </span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-sm font-semibold text-custom-primary truncate">{{ v.marca }} {{ v.modelo }}</div>
+                                    <div class="text-[10px] text-custom-outline/70 mt-0.5">{{ v.tipo_vehiculo }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Placa -->
+                        <td class="px-8 py-7">
+                            <div class="text-sm font-bold text-custom-primary font-mono">{{ v.placa }}</div>
+                            <div class="text-xs text-custom-outline/70 mt-0.5">{{ v.get_tipo_vehiculo_display|default:v.tipo_vehiculo }}</div>
+                        </td>
+
+                        <!-- Capacidad -->
+                        <td class="px-8 py-7">
+                            <div class="text-sm text-custom-secondary font-semibold">{{ v.capacidad_peso_kg }} kg</div>
+                            <div class="text-xs text-custom-outline/70 mt-0.5">{{ v.capacidad_volumen_m3 }} m³</div>
+                        </td>
+
+                        <!-- Año -->
+                        <td class="px-8 py-7">
+                            <div class="text-sm text-custom-secondary font-semibold">{{ v.anio }}</div>
+                        </td>
+
+                        <!-- Estado -->
+                        <td class="px-8 py-7">
+                            {% if v.estado == 'DISPONIBLE' %}
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span class="text-sm font-medium text-emerald-600">Disponible</span>
+                                </div>
+                            {% elif v.estado == 'EN_RUTA' %}
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                    <span class="text-sm font-medium text-blue-600">En Ruta</span>
+                                </div>
+                            {% elif v.estado == 'MANTENIMIENTO' %}
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-amber-500"></span>
+                                    <span class="text-sm font-medium text-amber-600">Mantenimiento</span>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-rose-500"></span>
+                                    <span class="text-sm font-medium text-rose-600">{{ v.get_estado_display }}</span>
+                                </div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="px-8 py-7">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'vehiculo_update' v.id %}"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-blue-600 hover:bg-blue-500/10 transition-all"
+                                   title="Editar Vehículo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </a>
+                                <a href="{% url 'vehiculo_delete' v.id %}"
+                                   onclick="return confirm('¿Estás seguro de eliminar este vehículo?')"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-rose-600 hover:bg-rose-500/10 transition-all"
+                                   title="Eliminar Vehículo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-8 py-16 text-center">
+                            <div class="flex flex-col items-center gap-3 text-custom-outline/40">
+                                <svg class="w-12 h-12 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                <span class="text-sm font-medium">Sin vehículos registrados</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
 
-    <!-- ═══════════════════════════════ VEHICULOS GRID ══════════════════════════════ -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for v in vehiculos %}
-        <div class="bg-custom-surface rounded-3xl p-8 border border-custom-ui group hover:border-custom-brand/30 transition-all flex flex-col h-full shadow-sm relative overflow-hidden">
-            <!-- Icono y Placa -->
-            <div class="flex justify-between items-start mb-6">
-                <div class="h-14 w-14 rounded-2xl bg-custom-surface-low flex items-center justify-center text-custom-brand shadow-inner group-hover:scale-105 transition-transform">
-                    <span class="material-symbols-outlined text-3xl">
-                        {% if v.tipo_vehiculo == 'MOTO' %}motorcycle{% elif v.tipo_vehiculo == 'VAN' %}airport_shuttle{% else %}local_shipping{% endif %}
-                    </span>
+        <!-- Pagination -->
+        <div class="px-8 py-5 border-t border-custom-ui/3 bg-custom-surface-low flex items-center justify-between">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <span class="text-[11px] font-bold text-custom-outline uppercase tracking-widest">ROWS PER PAGE</span>
+                    <select name="per_page" onchange="this.form.submit()" class="px-3 py-1.5 bg-custom-surface border border-custom-ui/20 rounded-lg text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-sm focus:outline-none font-semibold">
+                        <option value="5"  {% if items_por_pagina == 5  %}selected{% endif %}>5</option>
+                        <option value="10" {% if items_por_pagina == 10 %}selected{% endif %}>10</option>
+                        <option value="15" {% if items_por_pagina == 15 %}selected{% endif %}>15</option>
+                        <option value="20" {% if items_por_pagina == 20 %}selected{% endif %}>20</option>
+                    </select>
                 </div>
-                <div class="flex flex-col items-end">
-                    <span class="px-3 py-1 rounded-lg bg-custom-surface-highest text-custom-primary font-mono font-black text-lg border border-custom-ui">
-                        {{ v.placa }}
-                    </span>
-                    <span class="text-[10px] font-bold text-custom-outline uppercase tracking-widest mt-1">{{ v.tipo_vehiculo }}</span>
-                </div>
+                <div class="text-xs text-custom-secondary font-semibold">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of <span class="font-bold">{{ page_obj.paginator.count }}</span> vehículos</div>
             </div>
-
-            <!-- Datos Principales -->
-            <h3 class="text-xl font-black text-custom-primary mb-1">{{ v.marca }} {{ v.modelo }}</h3>
-            <p class="text-xs text-custom-tertiary font-bold mb-6">Modelo {{ v.anio }}</p>
-
-            <!-- Capacidades -->
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="bg-custom-surface-low p-4 rounded-2xl border border-custom-ui/50">
-                    <p class="text-[9px] font-bold text-custom-outline uppercase tracking-tighter mb-1">Carga Máx</p>
-                    <p class="text-sm font-black text-custom-primary">{{ v.capacidad_peso_kg }} kg</p>
-                </div>
-                <div class="bg-custom-surface-low p-4 rounded-2xl border border-custom-ui/50">
-                    <p class="text-[9px] font-bold text-custom-outline uppercase tracking-tighter mb-1">Volumen</p>
-                    <p class="text-sm font-black text-custom-primary">{{ v.capacidad_volumen_m3 }} m³</p>
-                </div>
-            </div>
-
-            <!-- Estatus y Acciones -->
-            <div class="pt-6 border-t border-custom-ui/30 flex items-center justify-between mt-auto">
-                <div>
-                    {% if v.estado == 'DISPONIBLE' %}
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>Disponible
-                    </span>
-                    {% elif v.estado == 'EN_RUTA' %}
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>En Ruta
-                    </span>
+            <nav class="flex items-center gap-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if query_params %}&{{ query_params }}{% endif %}&per_page={{ items_por_pagina }}" class="px-4 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">PREV</a>
+                {% else %}
+                    <span class="px-4 py-2 rounded-lg border border-custom-ui/20 text-custom-outline/30 text-xs font-bold opacity-50 cursor-not-allowed">PREV</span>
+                {% endif %}
+                <div class="flex items-center gap-1">
+                    {% if page_obj.paginator.num_pages <= 7 %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if num == page_obj.number %}<span class="px-3 py-2 rounded-lg bg-custom-brand text-custom-on-brand text-xs font-bold">{{ num }}</span>
+                            {% else %}<a href="?page={{ num }}{% if query_params %}&{{ query_params }}{% endif %}&per_page={{ items_por_pagina }}" class="px-3 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">{{ num }}</a>{% endif %}
+                        {% endfor %}
                     {% else %}
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-600 text-[10px] font-black uppercase tracking-widest border border-rose-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ v.get_estado_display }}
-                    </span>
+                        {% for num in page_obj.paginator.page_range|slice:":3" %}
+                            {% if num == page_obj.number %}<span class="px-3 py-2 rounded-lg bg-custom-brand text-custom-on-brand text-xs font-bold">{{ num }}</span>
+                            {% else %}<a href="?page={{ num }}{% if query_params %}&{{ query_params }}{% endif %}&per_page={{ items_por_pagina }}" class="px-3 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">{{ num }}</a>{% endif %}
+                        {% endfor %}
+                        <span class="px-2 text-custom-outline/50 text-xs font-semibold">...</span>
+                        {% for num in page_obj.paginator.page_range|slice:"-2:" %}
+                            {% if num == page_obj.number %}<span class="px-3 py-2 rounded-lg bg-custom-brand text-custom-on-brand text-xs font-bold">{{ num }}</span>
+                            {% else %}<a href="?page={{ num }}{% if query_params %}&{{ query_params }}{% endif %}&per_page={{ items_por_pagina }}" class="px-3 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">{{ num }}</a>{% endif %}
+                        {% endfor %}
                     {% endif %}
                 </div>
-                <div class="flex gap-2">
-                    <a href="{% url 'vehiculo_update' v.id %}" class="h-10 w-10 flex items-center justify-center rounded-xl bg-custom-surface-low text-custom-secondary hover:text-amber-500 hover:bg-amber-500/10 transition-all" title="Editar Vehículo">
-                        <span class="material-symbols-outlined text-xl">edit</span>
-                    </a>
-                    <a href="{% url 'vehiculo_delete' v.id %}" class="h-10 w-10 flex items-center justify-center rounded-xl bg-custom-surface-low text-custom-secondary hover:text-rose-600 hover:bg-rose-500/10 transition-all" title="Eliminar Vehículo">
-                        <span class="material-symbols-outlined text-xl">delete</span>
-                    </a>
-                </div>
-            </div>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if query_params %}&{{ query_params }}{% endif %}&per_page={{ items_por_pagina }}" class="px-4 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">NEXT</a>
+                {% else %}
+                    <span class="px-4 py-2 rounded-lg border border-custom-ui/20 text-custom-outline/30 text-xs font-bold opacity-50 cursor-not-allowed">NEXT</span>
+                {% endif %}
+            </nav>
         </div>
-        {% empty %}
-        <div class="col-span-full py-20 text-center">
-            <span class="material-symbols-outlined text-6xl text-custom-outline/20">no_transportation</span>
-            <p class="text-lg font-bold text-custom-primary mt-4">Sin vehículos registrados</p>
-        </div>
-        {% endfor %}
     </div>
-
 </div>
 {% endblock %}

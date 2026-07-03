@@ -21,5 +21,5 @@ urlpatterns = [
     path('dashboard/rutas/nuevo/', views.RutaCreateView.as_view(), name='ruta_create'),
     path('dashboard/rutas/<int:pk>/editar/', views.RutaUpdateView.as_view(), name='ruta_update'),
     path('dashboard/rutas/<int:pk>/eliminar/', views.RutaDeleteView.as_view(), name='ruta_delete'),
-    # path('dashboard/rutas/export/<str:file_format>/', views.ExportRutasView.as_view(), name='export_rutas'), # Temporary disable export rutas if view not fully ready
+    path('dashboard/rutas/export/<str:file_format>/', views.ExportRutasView.as_view(), name='export_rutas'),
 ]

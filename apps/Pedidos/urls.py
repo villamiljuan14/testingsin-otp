@@ -12,7 +12,7 @@ from .views.dashboard import (
     servicio_create_view, servicio_update_view, servicio_delete_view,
     reclamo_create_view, reclamo_update_view, reclamo_delete_view,
     export_pedidos_view, export_guias_view, export_hubs_view,
-    export_servicios_view, export_reclamos_view
+    export_servicios_view, export_reclamos_view, export_tracking_view
 )
 from .views.pedido_create import pedido_create_view, pedido_detail_view, pedido_update_view, pedido_delete_view
 from .views.pago_views import checkout_pago_view, wompi_webhook_view
@@ -68,6 +68,7 @@ urlpatterns = [
     path('dashboard/hubs/export/<str:file_format>/', export_hubs_view, name='export_hubs'),
     path('dashboard/servicios/export/<str:file_format>/', export_servicios_view, name='export_servicios'),
     path('dashboard/reclamos/export/<str:file_format>/', export_reclamos_view, name='export_reclamos'),
+    path('dashboard/tracking/export/<str:file_format>/', export_tracking_view, name='export_tracking'),
     path('dashboard/pedidos/<int:pedido_id>/checkout-pago/', checkout_pago_view, name='checkout_pago'),
     
     # ==================== MOCK WOMPI (Testing sin conexión externa) ====================

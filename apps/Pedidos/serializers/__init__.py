@@ -1,6 +1,6 @@
 from .pedido import PedidoSerializer, PedidoCreateSerializer, PedidoUpdateSerializer
 from .guia import GuiaEnvioSerializer, GuiaCreateSerializer
-from .tracking import EventoTrackingSerializer, TrackingPublicoSerializer
+from .tracking import EventoTrackingSerializer, EventoTrackingCreateSerializer, TrackingPublicoSerializer
 from .reclamo import ReclamoSerializer, ReclamoCreateSerializer
 from .hub import HubSerializer
 from .servicio import TipoServicioSerializer

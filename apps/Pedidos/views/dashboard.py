@@ -823,17 +823,34 @@ def dashboard_tracking_list(request):
 def dashboard_servicios_list(request):
     """Vista de tipos de servicio estandarizada"""
     servicios_qs = _filter_servicios_queryset(request)
-    
+
     # Estadísticas básicas
     stats = {
-        'total': servicios_qs.count(),
+        'total': TipoServicio.objects.count(),
         'uso_total': Pedido.objects.count(),
     }
-    
+
+    # Paginación
+    items_por_pagina = int(request.GET.get('per_page', 10))
+    if items_por_pagina not in [5, 10, 15, 20]:
+        items_por_pagina = 10
+
+    paginator = Paginator(servicios_qs, items_por_pagina)
+    page_number = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.page(page_number)
+    except (PageNotAnInteger, EmptyPage):
+        page_obj = paginator.page(1)
+
+    query_string = request.GET.copy()
+    query_string.pop('page', None)
+
     context = {
-        'services': servicios_qs,
-        'page_obj': servicios_qs,
+        'services': page_obj,
+        'page_obj': page_obj,
         'stats': stats,
+        'items_por_pagina': items_por_pagina,
+        'query_params': query_string.urlencode(),
         'current_q': request.GET.get('q', ''),
     }
     return render(request, 'dashboard/servicios.html', context)
@@ -947,6 +964,24 @@ def tracking_create(request):
         if form.is_valid():
             evento = form.save(commit=False)
             evento.registrado_por = request.user
+
+            # Guard adicional en la vista: verificar pedido entregado antes de guardar
+            from ..models.choices import TipoEventoTracking as TET
+            if EventoTracking.objects.filter(
+                pedido=evento.pedido,
+                tipo_evento=TET.ENTREGADO
+            ).exists():
+                messages.error(
+                    request,
+                    f'El pedido #{evento.pedido.numero_pedido} ya fue marcado como Entregado. '
+                    f'No se pueden registrar más eventos de tracking.'
+                )
+                return render(request, 'dashboard/tracking_form.html', {
+                    'form': form,
+                    'title': 'Registrar Evento de Tracking',
+                    'button_text': 'Registrar'
+                })
+
             evento.save()
             messages.success(request, 'Evento de tracking registrado exitosamente.')
             return redirect('dashboard_tracking')
@@ -971,7 +1006,18 @@ def tracking_create(request):
 def tracking_update(request, pk):
     """Editar evento de tracking"""
     evento = get_object_or_404(EventoTracking, pk=pk)
-    
+
+    # 🔒 Eventos ENTREGADO son inmutables
+    from ..models.choices import TipoEventoTracking as TET
+    if evento.tipo_evento == TET.ENTREGADO:
+        messages.error(
+            request,
+            f'El evento "{evento.get_tipo_evento_display()}" del pedido '
+            f'#{evento.pedido.numero_pedido} corresponde a una entrega confirmada '
+            f'y no puede ser modificado.'
+        )
+        return redirect('dashboard_tracking')
+
     if request.method == 'POST':
         logger.debug('tracking_update POST request; files=%s, evento_id=%s', request.FILES.keys(), pk)
         form = EventoTrackingForm(request.POST, request.FILES, instance=evento)
@@ -1341,6 +1387,64 @@ def export_reclamos_view(request, file_format):
     for r in reclamos:
         writer.writerow([r.numero_reclamo, r.pedido.numero_pedido, r.reclamante.email, r.get_tipo_display(), r.get_estado_display(), r.get_prioridad_display(), r.fecha_radicacion, r.valor_reclamado])
     return response
+
+
+@login_required
+def export_tracking_view(request, file_format):
+    """Exportación multiformato para Eventos de Tracking"""
+    eventos = EventoTracking.objects.select_related(
+        'pedido', 'guia', 'registrado_por'
+    ).order_by('-fecha_registro')
+
+    q = request.GET.get('q', '').strip()
+    tipo = request.GET.get('tipo', '').strip()
+    if q:
+        from django.db.models import Q
+        eventos = eventos.filter(
+            Q(pedido__numero_pedido__icontains=q) |
+            Q(guia__numero_guia__icontains=q) |
+            Q(ubicacion_texto__icontains=q)
+        )
+    if tipo:
+        eventos = eventos.filter(tipo_evento=tipo)
+
+    headers = ['ID', 'Pedido', 'Guía', 'Tipo Evento', 'Ubicación', 'Latitud', 'Longitud', 'Registrado Por', 'Fecha']
+
+    if file_format == 'pdf':
+        rows = []
+        for e in eventos:
+            rows.append([
+                e.id,
+                e.pedido.numero_pedido if e.pedido else '—',
+                e.guia.numero_guia if e.guia else '—',
+                e.get_tipo_evento_display(),
+                e.ubicacion_texto or '—',
+                str(e.latitud) if e.latitud else '—',
+                str(e.longitud) if e.longitud else '—',
+                e.registrado_por.email if e.registrado_por else 'Sistema',
+                e.fecha_registro.strftime('%Y-%m-%d %H:%M') if e.fecha_registro else '—',
+            ])
+        from apps.core.views import render_to_pdf
+        return render_to_pdf(headers, rows, "REPORTE DE TRACKING", f"enviart_tracking_{timezone.now().strftime('%Y%m%d_%H%M')}.pdf")
+
+    import tablib
+    dataset = tablib.Dataset(headers=headers)
+    for e in eventos:
+        dataset.append([
+            e.id,
+            e.pedido.numero_pedido if e.pedido else '—',
+            e.guia.numero_guia if e.guia else '—',
+            e.get_tipo_evento_display(),
+            e.ubicacion_texto or '—',
+            float(e.latitud) if e.latitud else None,
+            float(e.longitud) if e.longitud else None,
+            e.registrado_por.email if e.registrado_por else 'Sistema',
+            e.fecha_registro.strftime('%Y-%m-%d %H:%M') if e.fecha_registro else '—',
+        ])
+    from apps.core.views import export_dataset
+    return export_dataset(dataset, file_format, f'enviart_tracking_{timezone.now().strftime("%Y%m%d_%H%M")}')
+
+
 # ═════════════════════════════════════════════════════════════════
 # CRUD GUÍAS DE ENVÍO
 # ═════════════════════════════════════════════════════════════════

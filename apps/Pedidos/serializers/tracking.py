@@ -3,15 +3,15 @@ from ..models import EventoTracking, Pedido
 
 
 class EventoTrackingSerializer(serializers.ModelSerializer):
-    """Serializer para eventos de tracking"""
-    
+    """Serializer de lectura para eventos de tracking"""
+
     tipo_evento_display = serializers.CharField(
         source='get_tipo_evento_display',
         read_only=True
     )
     hub = serializers.StringRelatedField(read_only=True)
     registrado_por = serializers.StringRelatedField(read_only=True)
-    
+
     class Meta:
         model = EventoTracking
         fields = [
@@ -21,6 +21,32 @@ class EventoTrackingSerializer(serializers.ModelSerializer):
             'fecha_registro', 'evidencia_foto'
         ]
         read_only_fields = fields
+
+
+class EventoTrackingCreateSerializer(serializers.ModelSerializer):
+    """Serializer de escritura — usado por la app Flutter del mensajero.
+
+    Campos requeridos: pedido, tipo_evento, ubicacion_texto
+    Campos opcionales: latitud, longitud, descripcion, observaciones, guia
+    El campo registrado_por se asigna en la vista desde request.user.
+    """
+
+    class Meta:
+        model = EventoTracking
+        fields = [
+            'pedido', 'guia', 'tipo_evento',
+            'ubicacion_texto', 'latitud', 'longitud',
+            'descripcion', 'observaciones',
+        ]
+        extra_kwargs = {
+            'guia':             {'required': False, 'allow_null': True},
+            'latitud':          {'required': False, 'allow_null': True},
+            'longitud':         {'required': False, 'allow_null': True},
+            'descripcion':      {'required': False, 'allow_blank': True},
+            'observaciones':    {'required': False, 'allow_blank': True},
+            'ubicacion_texto':  {'required': False, 'allow_blank': True,
+                                 'default': ''},
+        }
 
 
 class TrackingPublicoSerializer(serializers.ModelSerializer):

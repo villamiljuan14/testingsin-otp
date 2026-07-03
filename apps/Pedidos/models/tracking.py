@@ -103,28 +103,53 @@ class EventoTracking(models.Model):
         return f'{self.pedido.numero_pedido} - {self.get_tipo_evento_display()} ({self.fecha_registro})'
     
     def save(self, *args, **kwargs):
-        """Actualiza el estado del pedido automáticamente"""
-        super().save(*args, **kwargs)
+        """Guarda el evento y sincroniza el estado del pedido.
         
-        # ✅ Mapeo de evento a estado del pedido
+        Reglas:
+        - Un evento ENTREGADO existente no puede modificarse.
+        - Un pedido ya ENTREGADO no puede retroceder a un estado anterior.
+        """
+        from django.core.exceptions import ValidationError
+        from django.db import transaction
+
+        # 🔒 Bloquear modificación de evento ENTREGADO existente
+        if self.pk:
+            original = EventoTracking.objects.filter(pk=self.pk).values('tipo_evento').first()
+            if original and original['tipo_evento'] == TipoEventoTracking.ENTREGADO:
+                raise ValidationError(
+                    'Un evento de entrega no puede ser modificado una vez registrado.'
+                )
+
         estado_mapping = {
-            TipoEventoTracking.PEDIDO_CONFIRMADO: 'CONFIRMADO',
-            TipoEventoTracking.RECOLECTADO: 'RECOLECTADO',
-            TipoEventoTracking.LLEGADA_HUB_ORIGEN: 'EN_HUB_ORIGEN',
-            TipoEventoTracking.SALIDA_HUB_ORIGEN: 'EN_TRANSITO',
+            TipoEventoTracking.PEDIDO_CONFIRMADO:   'CONFIRMADO',
+            TipoEventoTracking.RECOLECTADO:         'RECOLECTADO',
+            TipoEventoTracking.LLEGADA_HUB_ORIGEN:  'EN_HUB_ORIGEN',
+            TipoEventoTracking.SALIDA_HUB_ORIGEN:   'EN_TRANSITO',
             TipoEventoTracking.LLEGADA_HUB_DESTINO: 'EN_HUB_DESTINO',
-            TipoEventoTracking.SALIDA_HUB_DESTINO: 'EN_REPARTO',
-            TipoEventoTracking.EN_REPARTO: 'EN_REPARTO',
-            TipoEventoTracking.ENTREGADO: 'ENTREGADO',
-            TipoEventoTracking.DEVUELTO_REMITENTE: 'DEVUELTO',
-            TipoEventoTracking.CANCELADO: 'CANCELADO',
+            TipoEventoTracking.SALIDA_HUB_DESTINO:  'EN_REPARTO',
+            TipoEventoTracking.EN_REPARTO:          'EN_REPARTO',
+            TipoEventoTracking.ENTREGADO:           'ENTREGADO',
+            TipoEventoTracking.DEVUELTO_REMITENTE:  'DEVUELTO',
+            TipoEventoTracking.CANCELADO:           'CANCELADO',
         }
-        
-        if self.tipo_evento in estado_mapping:
-            self.pedido.estado = estado_mapping[self.tipo_evento]
-            
-            # ✅ Si es entregado, guardar fecha real
+
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+
+            if self.tipo_evento not in estado_mapping:
+                return
+
+            # 🔒 No revertir un pedido ya entregado
+            pedido = Pedido.objects.select_for_update().get(pk=self.pedido_id)
+            if pedido.estado == 'ENTREGADO' and self.tipo_evento != TipoEventoTracking.ENTREGADO:
+                return
+
+            nuevo_estado = estado_mapping[self.tipo_evento]
+            update_fields = ['estado']
+            pedido.estado = nuevo_estado
+
             if self.tipo_evento == TipoEventoTracking.ENTREGADO:
-                self.pedido.fecha_entrega_real = self.fecha_registro
-            
-            self.pedido.save(update_fields=['estado', 'fecha_entrega_real'])
+                pedido.fecha_entrega_real = self.fecha_registro
+                update_fields.append('fecha_entrega_real')
+
+            pedido.save(update_fields=update_fields)

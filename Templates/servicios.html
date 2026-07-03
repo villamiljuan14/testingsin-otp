@@ -1,12 +1,159 @@
-{% extends 'core/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios | Enviart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/theme.js' %}"></script>
+</head>
+<body>
 
-{% block title %}Nuestros Servicios | Enviart{% endblock %}
+<header class="navbar">
+    <div class="container nav-content">
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'images/shiplog.png' %}" alt="Logo Enviart" class="logo-img">
+            <span>Enviart</span>
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}" class="nav-link">Inicio</a>
+            <a href="{% url 'servicios' %}" class="nav-link">Servicios</a>
+            <a href="{% url 'rastrear' %}" class="nav-link">Rastrear Envío</a>
+            <a href="{% url 'contacto' %}" class="nav-link">Contacto</a>
+        </nav>
+        <div class="nav-buttons">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">
+                <svg id="moon-icon" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="sun-icon" class="hidden" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            </button>
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}" class="inline-block">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline btn-logout">Cerrar sesión</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline">Ingresar</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Registrarse</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
 
-{% block content %}
-<h1>Nuestros Servicios</h1>
-<ul>
-    <li>Envío Estándar</li>
-    <li>Envío Express</li>
-    <li>Logística Empresarial</li>
-</ul>
-{% endblock %}
+<!-- Hero -->
+<section style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:100px 0 60px;text-align:center;">
+    <div class="container">
+        <span style="display:inline-block;background:rgba(27,107,245,.12);color:#60a5fa;border:1px solid rgba(27,107,245,.25);border-radius:50px;padding:6px 18px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px;">Nuestros Servicios</span>
+        <h1 style="font-size:2.5rem;font-weight:800;color:#f1f5f9;margin:0 0 16px;">Soluciones logísticas para cada necesidad</h1>
+        <p style="color:#64748b;font-size:1rem;max-width:520px;margin:0 auto 32px;">Desde envíos personales hasta logística empresarial, tenemos el servicio ideal para ti.</p>
+        <a href="{% url 'rastrear' %}" class="btn btn-primary" style="padding:14px 32px;font-size:.95rem;">Rastrear mi envío</a>
+    </div>
+</section>
+
+<!-- Servicios Grid -->
+<div class="container" style="padding:64px 20px;">
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-bottom:64px;">
+
+        <!-- Express -->
+        <div class="card service-card" style="padding:32px;border-radius:20px;">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#1B6BF5,#3b82f6);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+                <span class="material-symbols-outlined" style="color:#fff;font-size:26px;">rocket_launch</span>
+            </div>
+            <h3 style="font-size:1.1rem;font-weight:800;margin:0 0 10px;">Envío Express</h3>
+            <p style="color:#64748b;font-size:.9rem;line-height:1.6;margin:0 0 20px;">Entrega en menos de 24 horas en ciudades principales. Ideal para documentos y paquetes urgentes.</p>
+            <ul style="color:#94a3b8;font-size:.85rem;list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px;">
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Entrega garantizada en 24h</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Tracking en tiempo real</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Cobertura en ciudades principales</li>
+            </ul>
+            <a href="{% url 'register' %}" class="btn btn-primary" style="width:100%;text-align:center;padding:12px;">Solicitar</a>
+        </div>
+
+        <!-- Estándar -->
+        <div class="card service-card" style="padding:32px;border-radius:20px;">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#10b981,#34d399);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+                <span class="material-symbols-outlined" style="color:#fff;font-size:26px;">local_shipping</span>
+            </div>
+            <h3 style="font-size:1.1rem;font-weight:800;margin:0 0 10px;">Envío Estándar</h3>
+            <p style="color:#64748b;font-size:.9rem;line-height:1.6;margin:0 0 20px;">Entrega en 3 a 5 días hábiles con cobertura nacional. La opción más económica para envíos no urgentes.</p>
+            <ul style="color:#94a3b8;font-size:.85rem;list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px;">
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Cobertura nacional</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Precio accesible</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Hasta 30 kg por envío</li>
+            </ul>
+            <a href="{% url 'register' %}" class="btn btn-primary" style="width:100%;text-align:center;padding:12px;">Solicitar</a>
+        </div>
+
+        <!-- Corporativo -->
+        <div class="card service-card" style="padding:32px;border-radius:20px;">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+                <span class="material-symbols-outlined" style="color:#fff;font-size:26px;">corporate_fare</span>
+            </div>
+            <h3 style="font-size:1.1rem;font-weight:800;margin:0 0 10px;">Soluciones Corporativas</h3>
+            <p style="color:#64748b;font-size:.9rem;line-height:1.6;margin:0 0 20px;">Logística integral para tu empresa. Gestión de volúmenes altos, acuerdos de tarifas y soporte dedicado.</p>
+            <ul style="color:#94a3b8;font-size:.85rem;list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px;">
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Tarifas especiales por volumen</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Ejecutivo de cuenta dedicado</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Reportes e integración API</li>
+            </ul>
+            <a href="{% url 'contacto' %}" class="btn btn-primary" style="width:100%;text-align:center;padding:12px;">Contactar</a>
+        </div>
+
+        <!-- Marítimo -->
+        <div class="card service-card" style="padding:32px;border-radius:20px;">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+                <span class="material-symbols-outlined" style="color:#fff;font-size:26px;">directions_boat</span>
+            </div>
+            <h3 style="font-size:1.1rem;font-weight:800;margin:0 0 10px;">Carga Especial</h3>
+            <p style="color:#64748b;font-size:.9rem;line-height:1.6;margin:0 0 20px;">Manejo de mercancías de gran tamaño, frágiles o con requerimientos especiales de temperatura y seguridad.</p>
+            <ul style="color:#94a3b8;font-size:.85rem;list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px;">
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Embalaje especializado</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Seguro de carga incluido</li>
+                <li style="display:flex;align-items:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;color:#34d399;">check_circle</span> Escolta disponible</li>
+            </ul>
+            <a href="{% url 'contacto' %}" class="btn btn-primary" style="width:100%;text-align:center;padding:12px;">Consultar</a>
+        </div>
+
+    </div>
+
+    <!-- CTA -->
+    <div style="background:linear-gradient(135deg,#1B6BF5,#3b82f6);border-radius:24px;padding:48px;text-align:center;">
+        <h2 style="font-size:1.75rem;font-weight:800;color:#fff;margin:0 0 12px;">¿No encuentras lo que buscas?</h2>
+        <p style="color:rgba(255,255,255,.75);margin:0 0 28px;font-size:.95rem;">Contáctanos y diseñamos una solución a tu medida.</p>
+        <a href="{% url 'contacto' %}" class="btn" style="background:#fff;color:#1B6BF5;font-weight:800;padding:14px 36px;border-radius:12px;text-decoration:none;">Hablar con un asesor</a>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <div class="container footer-grid">
+        <div class="footer-col">
+            <h3 class="footer-title footer__heading">Enviart</h3>
+            <p class="footer-text">Tu aliado estratégico en logística y mensajería nacional.</p>
+        </div>
+        <div class="footer-col">
+            <h3 class="footer-title footer__heading">Mapa del Sitio</h3>
+            <ul class="footer-links">
+                <li><a href="{% url 'home' %}" class="footer-link">Inicio</a></li>
+                <li><a href="{% url 'servicios' %}" class="footer-link">Servicios</a></li>
+                <li><a href="{% url 'rastrear' %}" class="footer-link">Rastreo</a></li>
+                <li><a href="{% url 'contacto' %}" class="footer-link">Contacto</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3 class="footer-title footer__heading">Legal</h3>
+            <ul class="footer-links">
+                <li><a href="#" class="footer-link">Términos y condiciones</a></li>
+                <li><a href="#" class="footer-link">Política de privacidad</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Enviart Logistic. Diseñado con excelencia.</div>
+</footer>
+
+<script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

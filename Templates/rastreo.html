@@ -6,95 +6,237 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rastreo de Envío | Enviart</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        .tracking-container {
-            max-width: 800px;
-            margin: 100px auto 50px;
-            padding: 40px;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        body { font-family: 'Outfit', sans-serif; background: #0a0f1a; color: #f1f5f9; margin: 0; }
+
+        .rastreo-wrap {
+            max-width: 760px;
+            margin: 100px auto 60px;
+            padding: 0 20px;
         }
-        .dark-theme .tracking-container {
+
+        /* ── Search bar ── */
+        .search-card {
             background: #111827;
-            border-color: #374151;
-        }
-        .tracking-title {
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            padding: 36px 40px;
             text-align: center;
-            font-size: 2rem;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
+        }
+        .search-card h1 {
+            font-size: 1.75rem;
             font-weight: 800;
-            color: #111827;
+            color: #f1f5f9;
+            margin: 0 0 6px;
         }
-        .dark-theme .tracking-title {
-            color: #f9fafb;
+        .search-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin: 0 0 24px;
         }
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+        .search-input {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            color: #f1f5f9;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .search-input:focus { border-color: #1B6BF5; }
+        .search-input::placeholder { color: #475569; }
+        .btn-search {
+            background: #1B6BF5;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity .2s;
+            font-family: 'Outfit', sans-serif;
+        }
+        .btn-search:hover { opacity: .88; }
+
+        /* ── Error ── */
+        .alert-error {
+            background: rgba(239,68,68,.08);
+            border: 1px solid rgba(239,68,68,.25);
+            border-left: 4px solid #ef4444;
+            color: #fca5a5;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: .9rem;
+            margin-bottom: 24px;
+        }
+
+        /* ── Result card ── */
+        .result-card {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        /* Status banner */
+        .status-banner {
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .status-left { display: flex; flex-direction: column; gap: 4px; }
+        .status-label { font-size: .7rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .12em; }
+        .status-number { font-size: 1.1rem; font-weight: 800; color: #f1f5f9; font-family: monospace; }
         .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
             border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-size: .8rem;
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: .1em;
         }
-        .status-CONFIRMADO { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .status-EN_TRANSITO { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .status-ENTREGADO { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-        .status-default { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
-        
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        .badge-ENTREGADO    { background: rgba(16,185,129,.12); color: #34d399; border: 1px solid rgba(16,185,129,.25); }
+        .badge-EN_TRANSITO,
+        .badge-EN_REPARTO   { background: rgba(245,158,11,.12);  color: #fbbf24; border: 1px solid rgba(245,158,11,.25); }
+        .badge-CONFIRMADO,
+        .badge-EN_PREPARACION { background: rgba(59,130,246,.12); color: #60a5fa; border: 1px solid rgba(59,130,246,.25); }
+        .badge-CANCELADO,
+        .badge-DEVUELTO     { background: rgba(239,68,68,.12);  color: #f87171; border: 1px solid rgba(239,68,68,.25); }
+        .badge-default      { background: rgba(100,116,139,.12); color: #94a3b8; border: 1px solid rgba(100,116,139,.25); }
+
+        .dot-ENTREGADO    { background: #34d399; }
+        .dot-EN_TRANSITO,
+        .dot-EN_REPARTO   { background: #fbbf24; }
+        .dot-CONFIRMADO,
+        .dot-EN_PREPARACION { background: #60a5fa; }
+        .dot-CANCELADO,
+        .dot-DEVUELTO     { background: #f87171; }
+        .dot-default      { background: #94a3b8; }
+
+        /* Info grid */
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 30px;
+            gap: 1px;
+            background: #1e293b;
         }
-        .info-item {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .info-cell {
+            background: #111827;
+            padding: 20px 32px;
         }
-        .dark-theme .info-item {
-            background: #1f2937;
-            border-color: #374151;
+        .info-cell-label { font-size: .7rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
+        .info-cell-value { font-size: .95rem; font-weight: 600; color: #f1f5f9; }
+
+        /* ── Timeline ── */
+        .timeline-card {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
         }
-        .info-label {
-            font-size: 0.85rem;
-            color: #6b7280;
-            margin-bottom: 8px;
+        .timeline-header {
+            padding: 20px 32px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .timeline-header h2 {
+            font-size: .8rem;
+            font-weight: 800;
+            color: #475569;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 500;
+            letter-spacing: .15em;
+            margin: 0;
         }
-        .dark-theme .info-label {
-            color: #9ca3af;
+        .timeline-body { padding: 8px 32px 24px; }
+
+        .tl-item {
+            display: flex;
+            gap: 16px;
+            padding: 18px 0;
+            position: relative;
         }
-        .info-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #111827;
+        .tl-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 46px;
+            bottom: 0;
+            width: 2px;
+            background: #1e293b;
         }
-        .dark-theme .info-value {
-            color: #f9fafb;
+
+        .tl-icon {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
         }
-        .search-again {
-            text-align: center;
-            margin-top: 40px;
+        .tl-icon span { font-size: 16px; }
+
+        .tl-icon-done    { background: rgba(16,185,129,.15); color: #34d399; border: 1.5px solid rgba(16,185,129,.3); }
+        .tl-icon-transit { background: rgba(245,158,11,.15); color: #fbbf24; border: 1.5px solid rgba(245,158,11,.3); }
+        .tl-icon-info    { background: rgba(59,130,246,.15); color: #60a5fa; border: 1.5px solid rgba(59,130,246,.3); }
+        .tl-icon-cancel  { background: rgba(239,68,68,.15);  color: #f87171; border: 1.5px solid rgba(239,68,68,.3); }
+        .tl-icon-default { background: rgba(100,116,139,.15); color: #94a3b8; border: 1.5px solid rgba(100,116,139,.3); }
+
+        .tl-content { flex: 1; min-width: 0; }
+        .tl-event { font-size: .9rem; font-weight: 700; color: #f1f5f9; }
+        .tl-meta  { font-size: .78rem; color: #475569; margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .tl-meta span { display: flex; align-items: center; gap: 4px; }
+        .tl-desc  { font-size: .82rem; color: #64748b; margin-top: 5px; }
+
+        /* ── Pedido creado / entrega estimada (synthetic) ── */
+        .tl-icon-created { background: rgba(139,92,246,.15); color: #a78bfa; border: 1.5px solid rgba(139,92,246,.3); }
+        .tl-icon-sched   { background: rgba(100,116,139,.1); color: #64748b; border: 1.5px dashed #334155; }
+
+        /* ── Back link ── */
+        .back-row { text-align: center; margin-top: 32px; }
+        .btn-back {
+            display: inline-block;
+            padding: 12px 28px;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 600;
+            transition: all .2s;
         }
-        .alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            border-left: 4px solid #ef4444;
-            color: #fca5a5;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        .btn-back:hover { border-color: #334155; color: #94a3b8; }
+
+        @media (max-width: 600px) {
+            .rastreo-wrap { margin-top: 80px; }
+            .search-row { flex-direction: column; }
+            .info-grid { grid-template-columns: 1fr; }
+            .status-banner { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
-<body class="dark-theme"> <!-- Forzar dark theme visualmente consistente para esta subpagina -->
+<body>
     <header class="navbar">
         <div class="container nav-content">
             <a href="{% url 'home' %}" class="logo">
@@ -104,64 +246,200 @@
             <nav class="nav-links">
                 <a href="{% url 'home' %}" class="nav-link">Inicio</a>
                 <a href="{% url 'servicios' %}" class="nav-link">Servicios</a>
-                <a href="{% url 'home' %}" class="nav-link">Rastrear Envío</a>
             </nav>
         </div>
     </header>
 
-    <div class="container tracking-container">
-        <h1 class="tracking-title">Consulta de Rastreo Libre</h1>
-        
-        {% if error %}
-            <div class="alert-error">
-                <strong>Error:</strong> {{ error }}
-            </div>
-            
-            <form action="{% url 'rastrear' %}" method="get" class="search-form" style="margin-top: 30px;">
-                <input type="text" name="guia" placeholder="Ej: PED-2026-X o ENV..." class="search-input" required value="{{ guia }}">
-                <button type="submit" class="btn btn-primary">Buscar de nuevo</button>
+    <div class="rastreo-wrap">
+
+        <!-- Search -->
+        <div class="search-card">
+            <h1>Rastrear Envío</h1>
+            <p>Ingresa tu número de pedido, guía o código de rastreo</p>
+            <form action="{% url 'rastrear' %}" method="get">
+                <div class="search-row">
+                    <input type="text" name="guia" class="search-input"
+                           placeholder="Ej: PED-2026-000001 o GUI-2026-000001"
+                           value="{{ guia }}" autocomplete="off">
+                    <button type="submit" class="btn-search">Rastrear</button>
+                </div>
             </form>
-            
-        {% elif pedido %}
-            <div style="text-align: center;">
-                <div class="info-label">Estado Actual</div>
-                <div class="status-badge status-{{ pedido.estado|default:'default' }}">
-                    {{ pedido.get_estado_display|default:pedido.estado }}
-                </div>
-            </div>
-            
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Número Guía / Rastreo</div>
-                    <div class="info-value">{{ pedido.codigo_rastreo }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Tipo de Servicio</div>
-                    <div class="info-value">{{ pedido.tipo_servicio.nombre|default:"Estándar" }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Origen</div>
-                    <div class="info-value">{{ pedido.ciudad_origen.nombre|default:"No especificado" }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Destino</div>
-                    <div class="info-value">{{ pedido.ciudad_destino.nombre|default:"No especificado" }}</div>
-                </div>
-                <!-- 
-                Siguiendo las reglas de privacidad: No se exponen datos sensibles (nombres, direcciones físicas o mapa) 
-                en esta vista pública no autenticada.
-                -->
-            </div>
-        {% else %}
-            <p style="text-align: center; color: #9ca3af;">Ingresa un número de guía arriba para rastrear tu envío.</p>
-        {% endif %}
-        
-        <div class="search-again">
-            <a href="{% url 'home' %}" class="btn btn-outline" style="color: white; border-color: white;">Volver al Inicio</a>
-            {% if not user.is_authenticated %}
-                <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">¿Eres el destinatario y deseas ver la ubicación GPS? <a href="{% url 'login' %}" style="color: #60a5fa;">Inicia sesión</a></p>
-            {% endif %}
         </div>
+
+        {% if error %}
+        <div class="alert-error">
+            <strong>Sin resultados:</strong> {{ error }}
+        </div>
+
+        {% elif pedido %}
+
+        <!-- Status banner -->
+        <div class="result-card">
+            <div class="status-banner">
+                <div class="status-left">
+                    <span class="status-label">Número de pedido</span>
+                    <span class="status-number">{{ pedido.numero_pedido }}</span>
+                </div>
+                {% with estado=pedido.estado %}
+                <span class="status-badge badge-{{ estado|default:'default' }}">
+                    <span class="status-dot dot-{{ estado|default:'default' }}"></span>
+                    {{ pedido.get_estado_display }}
+                </span>
+                {% endwith %}
+            </div>
+
+            <div class="info-grid">
+                <div class="info-cell">
+                    <div class="info-cell-label">Código de rastreo</div>
+                    <div class="info-cell-value" style="font-family:monospace">{{ pedido.codigo_rastreo }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Servicio</div>
+                    <div class="info-cell-value">{{ pedido.tipo_servicio.nombre|default:"Estándar" }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Origen</div>
+                    <div class="info-cell-value">{{ pedido.ciudad_origen.nombre|default:"—" }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Destino</div>
+                    <div class="info-cell-value">{{ pedido.ciudad_destino.nombre|default:"—" }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Fecha de pedido</div>
+                    <div class="info-cell-value">{{ pedido.fecha_pedido|date:"d M Y, H:i" }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Entrega estimada</div>
+                    <div class="info-cell-value">
+                        {% if pedido.fecha_estimada_entrega %}
+                            {{ pedido.fecha_estimada_entrega|date:"d M Y, H:i" }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-card">
+            <div class="timeline-header">
+                <h2>Línea de tiempo</h2>
+            </div>
+            <div class="timeline-body">
+
+                <!-- Pedido creado (siempre primero) -->
+                <div class="tl-item">
+                    <div class="tl-icon tl-icon-created">
+                        <span class="material-symbols-outlined">check_circle</span>
+                    </div>
+                    <div class="tl-content">
+                        <div class="tl-event">Pedido Creado</div>
+                        <div class="tl-meta">
+                            <span>
+                                <span class="material-symbols-outlined" style="font-size:13px">calendar_today</span>
+                                {{ pedido.fecha_pedido|date:"d M, H:i" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eventos reales de tracking -->
+                {% for evento in eventos %}
+                {% with tipo=evento.tipo_evento %}
+                <div class="tl-item">
+                    <div class="tl-icon
+                        {% if tipo == 'ENTREGADO' %}tl-icon-done
+                        {% elif tipo == 'CANCELADO' or tipo == 'DEVUELTO_REMITENTE' %}tl-icon-cancel
+                        {% elif tipo == 'EN_REPARTO' or tipo == 'SALIDA_HUB_ORIGEN' or tipo == 'SALIDA_HUB_DESTINO' %}tl-icon-transit
+                        {% else %}tl-icon-info{% endif %}">
+                        <span class="material-symbols-outlined">
+                            {% if tipo == 'ENTREGADO' %}check_circle
+                            {% elif tipo == 'RECOLECTADO' %}inventory
+                            {% elif tipo == 'LLEGADA_HUB_ORIGEN' or tipo == 'LLEGADA_HUB_DESTINO' %}warehouse
+                            {% elif tipo == 'SALIDA_HUB_ORIGEN' or tipo == 'SALIDA_HUB_DESTINO' %}local_shipping
+                            {% elif tipo == 'EN_REPARTO' %}delivery_dining
+                            {% elif tipo == 'CANCELADO' %}cancel
+                            {% elif tipo == 'DEVUELTO_REMITENTE' %}undo
+                            {% elif tipo == 'INTENTO_FALLIDO' %}error
+                            {% else %}radio_button_checked{% endif %}
+                        </span>
+                    </div>
+                    <div class="tl-content">
+                        <div class="tl-event">{{ evento.get_tipo_evento_display }}</div>
+                        <div class="tl-meta">
+                            <span>
+                                <span class="material-symbols-outlined" style="font-size:13px">calendar_today</span>
+                                {{ evento.fecha_registro|date:"d M, H:i" }}
+                            </span>
+                            {% if evento.ubicacion_texto %}
+                            <span>
+                                <span class="material-symbols-outlined" style="font-size:13px">location_on</span>
+                                {{ evento.ubicacion_texto }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% if evento.descripcion %}
+                        <div class="tl-desc">{{ evento.descripcion }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endwith %}
+                {% empty %}
+                <div style="padding: 24px 0; color: #475569; font-size:.88rem; text-align:center;">
+                    Sin eventos de tracking registrados aún.
+                </div>
+                {% endfor %}
+
+                <!-- Indicador de eventos adicionales -->
+                {% if hay_mas %}
+                <div class="tl-item" style="opacity:.7">
+                    <div class="tl-icon tl-icon-default">
+                        <span class="material-symbols-outlined">more_horiz</span>
+                    </div>
+                    <div class="tl-content">
+                        <div class="tl-event" style="color:#475569">
+                            + {{ total_eventos|add:"-3" }} evento{{ total_eventos|add:"-3"|pluralize:"s adicionales" }} no mostrado{{ total_eventos|add:"-3"|pluralize:"s" }}
+                        </div>
+                        <div class="tl-desc">
+                            El historial completo está disponible para el remitente autenticado.
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Entrega estimada (al final si no está entregado) -->
+                {% if pedido.estado != 'ENTREGADO' and pedido.fecha_estimada_entrega %}
+                <div class="tl-item">
+                    <div class="tl-icon tl-icon-sched">
+                        <span class="material-symbols-outlined">schedule</span>
+                    </div>
+                    <div class="tl-content">
+                        <div class="tl-event" style="color:#64748b">Entrega Estimada</div>
+                        <div class="tl-meta">
+                            <span>
+                                <span class="material-symbols-outlined" style="font-size:13px">calendar_today</span>
+                                {{ pedido.fecha_estimada_entrega|date:"d M, H:i" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        {% else %}
+        <div style="text-align:center; color:#475569; padding: 40px 0; font-size:.95rem;">
+            Ingresa un número de guía arriba para rastrear tu envío.
+        </div>
+        {% endif %}
+
+        <div class="back-row">
+            <a href="{% url 'home' %}" class="btn-back">← Volver al Inicio</a>
+        </div>
+
     </div>
 </body>
 </html>

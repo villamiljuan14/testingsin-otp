@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse_lazy
 from django.db.models import Q, Avg
 import tablib
@@ -23,6 +24,10 @@ class VehiculoListView(LoginRequiredMixin, ListView):
     context_object_name = 'vehiculos'
     ordering = 'placa'
 
+    def get_paginate_by(self, queryset):
+        per_page = int(self.request.GET.get('per_page', 10))
+        return per_page if per_page in [5, 10, 15, 20] else 10
+
     def get_queryset(self):
         queryset = super().get_queryset()
         query = self.request.GET.get('q')
@@ -41,11 +46,17 @@ class VehiculoListView(LoginRequiredMixin, ListView):
             'en_ruta': Vehiculo.objects.filter(estado=EstadoVehiculo.EN_RUTA).count(),
             'mantenimiento': Vehiculo.objects.filter(estado=EstadoVehiculo.MANTENIMIENTO).count(),
         }
+        per_page = int(self.request.GET.get('per_page', 10))
+        items_por_pagina = per_page if per_page in [5, 10, 15, 20] else 10
+        query_string = self.request.GET.copy()
+        query_string.pop('page', None)
         context.update({
             'estados': EstadoVehiculo.choices,
             'stats': stats,
             'current_q': self.request.GET.get('q', ''),
             'current_estado': self.request.GET.get('estado', ''),
+            'items_por_pagina': items_por_pagina,
+            'query_params': query_string.urlencode(),
         })
         return context
 
@@ -69,19 +80,53 @@ class VehiculoDeleteView(LoginRequiredMixin, DeleteView):
 class ExportVehiculosView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         vehiculos = Vehiculo.objects.all()
-        headers = ('ID', 'Placa', 'Marca', 'Modelo', 'Estado')
+        headers = ('ID', 'Placa', 'Marca', 'Modelo', 'Año', 'Tipo', 'Capacidad (kg)', 'Volumen (m³)', 'Estado')
         rows = []
         for v in vehiculos:
-            rows.append((v.id, v.placa, v.marca, v.modelo, v.estado))
-        
-        from apps.core.views import render_to_pdf
-        return render_to_pdf(headers, rows, "REPORTE DE VEHÍCULOS", "vehiculos_reporte.pdf")
+            rows.append((
+                v.id, v.placa, v.marca, v.modelo, v.anio,
+                v.tipo_vehiculo, float(v.capacidad_peso_kg), float(v.capacidad_volumen_m3),
+                v.get_estado_display(),
+            ))
+        file_format = kwargs.get('file_format', 'pdf')
+        from apps.core.views import render_to_pdf, export_dataset
+        import tablib
+        if file_format == 'pdf':
+            return render_to_pdf(list(headers), rows, "REPORTE DE VEHÍCULOS", "vehiculos_reporte.pdf")
+        dataset = tablib.Dataset(*rows, headers=list(headers))
+        return export_dataset(dataset, file_format, 'vehiculos')
+
+
+class ExportRutasView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        rutas = Ruta.objects.select_related('vehiculo', 'conductor').all()
+        headers = ('ID', 'Nombre', 'Código', 'Conductor', 'Vehículo', 'Fecha Programada', 'Estado')
+        rows = []
+        for r in rutas:
+            rows.append((
+                r.id, r.nombre, r.codigo_ruta,
+                r.conductor.email if r.conductor else '—',
+                r.vehiculo.placa if r.vehiculo else '—',
+                r.fecha_programada.strftime('%Y-%m-%d') if r.fecha_programada else '—',
+                r.get_estado_display(),
+            ))
+        file_format = kwargs.get('file_format', 'pdf')
+        from apps.core.views import render_to_pdf, export_dataset
+        import tablib
+        if file_format == 'pdf':
+            return render_to_pdf(list(headers), rows, "REPORTE DE RUTAS", "rutas_reporte.pdf")
+        dataset = tablib.Dataset(*rows, headers=list(headers))
+        return export_dataset(dataset, file_format, 'rutas')
 
 class RutaListView(LoginRequiredMixin, ListView):
     model = Ruta
     template_name = 'dashboard/rutas.html'
     context_object_name = 'rutas'
     ordering = '-creado_en'
+
+    def get_paginate_by(self, queryset):
+        per_page = int(self.request.GET.get('per_page', 10))
+        return per_page if per_page in [5, 10, 15, 20] else 10
 
     def get_queryset(self):
         queryset = super().get_queryset().select_related('hub_origen', 'creado_por')
@@ -101,11 +146,17 @@ class RutaListView(LoginRequiredMixin, ListView):
             'en_proceso': Ruta.objects.filter(estado=EstadoRuta.EN_CURSO).count(),
             'completadas': Ruta.objects.filter(estado=EstadoRuta.COMPLETADA).count(),
         }
+        per_page = int(self.request.GET.get('per_page', 10))
+        items_por_pagina = per_page if per_page in [5, 10, 15, 20] else 10
+        query_string = self.request.GET.copy()
+        query_string.pop('page', None)
         context.update({
             'estados': EstadoRuta.choices,
             'stats': stats,
             'current_q': self.request.GET.get('q', ''),
             'current_status': self.request.GET.get('status', ''),
+            'items_por_pagina': items_por_pagina,
+            'query_params': query_string.urlencode(),
         })
         return context
 

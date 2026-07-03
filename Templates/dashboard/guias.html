@@ -1,26 +1,18 @@
 {% extends "dashboard/base_dashboard.html" %}
-{% load static %}
 
 {% block title %}Guías de Envío | Enviart Dashboard{% endblock %}
 
 {% block dashboard_content %}
 <div class="space-y-8 animate-in fade-in duration-700">
-
-    <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Guías de Envío</h1>
-            <p class="text-custom-tertiary text-sm mt-1">Gestión, emisión y seguimiento de documentos logísticos.</p>
-        </div>
-        <div class="flex items-center gap-3">
-             <span class="text-xs font-bold text-custom-outline uppercase tracking-widest hidden md:inline">Dashboard / Guías</span>
-        </div>
+    <!-- Header -->
+    <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-custom-primary">Guías de Envío</h1>
+        <p class="text-custom-tertiary text-sm mt-1">Gestión, emisión y seguimiento de documentos logísticos.</p>
     </div>
 
-    <!-- ═══════════════════════════════════ FILTROS ══════════════════════════════════ -->
+    <!-- Filtros -->
     <div class="bg-custom-surface-low p-6 rounded-2xl border border-custom-ui shadow-sm">
-        <form method="GET" class="flex flex-col lg:flex-row gap-5 items-end">
-
+        <form method="GET" class="flex flex-col md:flex-row gap-5 items-end">
             <!-- Buscar -->
             <div class="flex-1 space-y-2 w-full">
                 <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Buscar Guía</label>
@@ -35,8 +27,7 @@
             <!-- Estado -->
             <div class="w-full md:w-52 space-y-2">
                 <label class="block text-[11px] font-bold text-custom-outline uppercase tracking-[0.15em] ml-1">Estado</label>
-                <select name="estado"
-                    class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 px-4 text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
+                <select name="estado" class="w-full bg-custom-surface border border-custom-ui rounded-2xl py-3 px-4 text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
                     <option value="">Todos los Estados</option>
                     {% for val, label in estados_guia %}
                     <option value="{{ val }}" {% if current_estado == val %}selected{% endif %}>{{ label }}</option>
@@ -44,29 +35,22 @@
                 </select>
             </div>
 
-            <!-- Botones de Acción -->
-            <div class="flex gap-2 h-[46px] items-center flex-shrink-0 w-full lg:w-auto">
-                <button type="submit"
-                    class="flex-1 lg:flex-none h-full px-8 bg-custom-brand text-custom-on-brand font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center">
+            <!-- Botones -->
+            <div class="flex gap-2 h-[46px] items-center">
+                <button type="submit" class="h-full px-6 bg-custom-brand text-custom-on-brand font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center">
                     Filtrar
                 </button>
-                <a href="{% url 'dashboard_guias' %}"
-                    class="h-full w-12 bg-custom-surface-highest text-custom-primary border border-custom-ui rounded-2xl flex items-center justify-center hover:opacity-80 transition-colors"
-                    title="Limpiar filtros">
+                <a href="{% url 'dashboard_guias' %}" class="h-full w-12 bg-custom-surface-highest text-custom-primary border border-custom-ui rounded-2xl flex items-center justify-center hover:opacity-80 transition-colors" title="Limpiar">
                     <span class="material-symbols-outlined">refresh</span>
                 </a>
 
-                <!-- Exportar Dropdown -->
                 <div class="h-full relative" x-data="{ open: false }">
-                    <button @click="open = !open" @click.away="open = false" type="button"
-                        class="h-full px-5 bg-custom-surface-low text-custom-primary font-bold border border-custom-ui/10 rounded-2xl flex items-center gap-2 hover:bg-custom-surface-highest transition-all shadow-sm">
+                    <button @click="open = !open" @click.away="open = false" type="button" class="h-full px-5 bg-custom-surface-low text-custom-primary font-bold border border-custom-ui/10 rounded-2xl flex items-center gap-2 hover:bg-custom-surface-highest transition-all shadow-sm">
                         <span class="material-symbols-outlined">download</span>
-                        <span class="hidden md:inline">Exportar</span>
+                        <span>Exportar</span>
                         <span class="material-symbols-outlined text-xs transition-transform" :class="open ? 'rotate-180' : ''">expand_more</span>
                     </button>
-                    <div x-show="open" x-transition
-                        class="absolute right-0 mt-2 w-52 bg-custom-surface border border-custom-ui/10 rounded-2xl shadow-2xl z-50 overflow-hidden py-2"
-                        style="display: none;">
+                    <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-custom-surface border border-custom-ui/10 rounded-2xl shadow-2xl z-50 overflow-hidden py-2" style="display: none;">
                         <a href="{% url 'export_guias' 'pdf' %}?{{ request.GET.urlencode }}" class="flex items-center gap-3 px-4 py-3 text-sm text-custom-secondary hover:bg-custom-surface-low hover:text-rose-600 transition-colors">
                             <span class="material-symbols-outlined text-rose-500">picture_as_pdf</span> PDF Reporte
                         </a>
@@ -79,79 +63,40 @@
                     </div>
                 </div>
 
-                <!-- Items por página -->
-                <select name="per_page" onchange="this.form.submit()"
-                    class="h-full px-4 bg-custom-surface border border-custom-ui rounded-2xl text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-inner focus:outline-none">
-                    <option value="10" {% if items_por_pagina == 10 %}selected{% endif %}>10 / pág</option>
-                    <option value="20" {% if items_por_pagina == 20 %}selected{% endif %}>20 / pág</option>
-                    <option value="50" {% if items_por_pagina == 50 %}selected{% endif %}>50 / pág</option>
-                </select>
+                <!-- Crear Guía (selecciona pedido) -->
+                <a href="{% url 'dashboard_pedidos' %}?sin_guia=1" class="h-full px-6 bg-custom-primary text-custom-surface font-bold rounded-2xl hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-custom-primary/10" title="Ir a pedidos para generar guía">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span class="hidden xl:inline">Nueva Guía</span>
+                </a>
             </div>
         </form>
     </div>
 
-    <!-- ═══════════════════════════════ KPI GRID ══════════════════════════════ -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Total -->
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
-                    <span class="material-symbols-outlined">receipt_long</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Total Emisiones</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.total }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Hoy -->
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-                    <span class="material-symbols-outlined">today</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Generadas Hoy</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.hoy }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- En Tránsito -->
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-                    <span class="material-symbols-outlined">local_shipping</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">En Tránsito</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.en_transito }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Entregadas -->
-        <div class="bg-custom-surface rounded-3xl p-6 border border-custom-ui shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-600">
-                    <span class="material-symbols-outlined">task_alt</span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-custom-tertiary uppercase tracking-widest">Entregadas</p>
-                    <h3 class="text-2xl font-black text-custom-primary">{{ stats.entregadas }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ═══════════════════════════════ TABLA PRINCIPAL ══════════════════════════════ -->
+    <!-- Table Container -->
     <div class="bg-custom-surface rounded-3xl overflow-hidden shadow-sm border border-custom-ui">
-        
+        <!-- Stats Bar -->
+        <div class="px-8 py-5 border-b border-custom-ui flex items-center justify-between bg-custom-surface-low">
+            <div class="flex gap-4">
+                <div class="px-4 py-1.5 bg-blue-500/10 text-blue-600 text-[11px] font-bold uppercase tracking-[0.2em] rounded-full border border-blue-500/20 flex items-center gap-2">
+                    Todas las Guías <span class="bg-blue-500/20 px-2 rounded opacity-80">{{ stats.total }}</span>
+                </div>
+                <div class="flex items-center gap-6 ml-6">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="text-[11px] font-bold text-custom-outline uppercase tracking-wider">Entregadas: {{ stats.entregadas }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span class="text-[11px] font-bold text-custom-outline uppercase tracking-wider">En Tránsito: {{ stats.en_transito }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                        <span class="text-[11px] font-bold text-custom-outline uppercase tracking-wider">Hoy: {{ stats.hoy }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Data Table -->
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -159,138 +104,126 @@
                     <tr class="bg-custom-surface-low border-b border-custom-ui">
                         <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Guía / Pedido</th>
                         <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Remitente / Destinatario</th>
-                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Ruta (Origen → Destino)</th>
+                        <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Ruta</th>
                         <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Dim. / Peso</th>
                         <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest">Estado</th>
                         <th class="px-8 py-5 text-[10px] font-bold text-custom-outline uppercase tracking-widest text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-custom-ui/30">
+                <tbody class="divide-y divide-custom-ui/3">
                     {% for g in page_obj %}
-                    <tr class="hover:bg-custom-surface-low/50 transition-colors border-b border-custom-ui/30">
-                        
-                        <!-- No. Guía & Pedido -->
-                        <td class="px-8 py-6">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold text-custom-primary font-mono select-all">{{ g.numero_guia }}</span>
-                                <div class="flex items-center gap-1.5 mt-0.5">
-                                    <span class="text-[9px] bg-custom-ui/50 px-1.5 py-0.5 rounded text-custom-outline font-black uppercase">Pedido</span>
-                                    <a href="{% url 'pedido_detail' g.pedido.id %}" class="text-xs text-custom-brand font-bold hover:underline">#{{ g.pedido.numero_pedido }}</a>
+                    <tr class="hover:bg-custom-surface-low/50 transition-colors border-b border-custom-ui/3">
+                        <!-- Guía / Pedido -->
+                        <td class="px-8 py-7">
+                            <div class="flex items-center gap-4">
+                                <div class="h-12 w-12 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md flex-shrink-0"
+                                    style="{% cycle 'background: linear-gradient(135deg, #1B6BF5, #3b82f6);' 'background: linear-gradient(135deg, #10b981, #34d399);' 'background: linear-gradient(135deg, #f59e0b, #fbbf24);' 'background: linear-gradient(135deg, #ef4444, #f87171);' 'background: linear-gradient(135deg, #8b5cf6, #a78bfa);' %}">
+                                    <span class="material-symbols-outlined text-lg">receipt_long</span>
                                 </div>
-                                <span class="text-[10px] text-custom-outline/50 mt-1.5 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[12px]">calendar_today</span>
-                                    {{ g.fecha_generacion|date:"d M Y, H:i" }}
-                                </span>
+                                <div class="min-w-0">
+                                    <div class="text-sm font-semibold text-custom-primary font-mono truncate">{{ g.numero_guia }}</div>
+                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                        <span class="text-[9px] bg-custom-ui/50 px-1.5 py-0.5 rounded text-custom-outline font-black uppercase">Pedido</span>
+                                        <a href="{% url 'pedido_detail' g.pedido.id %}" class="text-xs text-custom-brand font-bold hover:underline">#{{ g.pedido.numero_pedido }}</a>
+                                    </div>
+                                    <div class="text-[10px] text-custom-outline/50 mt-1">{{ g.fecha_generacion|date:"d M Y" }}</div>
+                                </div>
                             </div>
                         </td>
 
                         <!-- Remitente / Destinatario -->
-                        <td class="px-8 py-6">
-                            <div class="flex flex-col gap-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-custom-ui/30 flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-[14px] text-custom-outline">person</span>
-                                    </div>
-                                    <span class="text-xs font-semibold text-custom-primary">{{ g.pedido.usuario.get_full_name|default:g.pedido.usuario.email|truncatechars:20 }}</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-[14px] text-blue-500">person_pin</span>
-                                    </div>
-                                    <span class="text-xs font-semibold text-custom-primary">{{ g.pedido.nombre_destinatario|truncatechars:20 }}</span>
-                                </div>
+                        <td class="px-8 py-7">
+                            <div class="text-sm font-semibold text-custom-primary truncate max-w-[160px]">{{ g.pedido.usuario.get_full_name|default:g.pedido.usuario.email|truncatechars:20 }}</div>
+                            <div class="text-xs text-custom-outline/70 truncate max-w-[160px] mt-0.5">
+                                <span class="material-symbols-outlined text-[13px] align-middle">person_pin</span>
+                                {{ g.pedido.nombre_destinatario|truncatechars:20 }}
                             </div>
                         </td>
 
                         <!-- Ruta -->
-                        <td class="px-8 py-6">
-                            <div class="flex flex-col gap-1.5">
-                                <div class="flex items-center gap-1.5 text-xs text-custom-secondary">
-                                    <span class="material-symbols-outlined text-[18px] text-blue-500">trip_origin</span>
-                                    <span class="font-medium">{{ g.pedido.hub_origen.nombre|default:"—" }}</span>
-                                </div>
-                                <div class="ml-[8px] border-l-2 border-dashed border-custom-ui/30 h-3"></div>
-                                <div class="flex items-center gap-1.5 text-xs text-custom-secondary">
-                                    <span class="material-symbols-outlined text-[18px] text-emerald-500">location_on</span>
-                                    <span class="font-medium">{{ g.pedido.hub_destino.nombre|default:"—" }}</span>
-                                </div>
+                        <td class="px-8 py-7">
+                            <div class="flex items-center gap-1.5 text-xs text-custom-secondary">
+                                <span class="material-symbols-outlined text-[14px] text-blue-500">trip_origin</span>
+                                <span class="font-medium truncate max-w-[100px]">{{ g.pedido.hub_origen.nombre|default:"—" }}</span>
+                            </div>
+                            <div class="ml-2 border-l-2 border-dashed border-custom-ui/30 h-3 my-0.5"></div>
+                            <div class="flex items-center gap-1.5 text-xs text-custom-secondary">
+                                <span class="material-symbols-outlined text-[14px] text-emerald-500">location_on</span>
+                                <span class="font-medium truncate max-w-[100px]">{{ g.pedido.hub_destino.nombre|default:"—" }}</span>
                             </div>
                         </td>
 
                         <!-- Dim / Peso -->
-                        <td class="px-8 py-6">
-                            <div class="flex flex-col gap-1.5">
-                                <span class="inline-flex px-2 py-1 rounded bg-custom-surface-highest text-custom-primary text-[11px] font-bold border border-custom-ui w-fit">
-                                    {{ g.peso_final_kg|floatformat:1 }} kg
-                                </span>
-                                <div class="flex items-center gap-1 text-[10px] text-custom-outline/70">
-                                    <span class="material-symbols-outlined text-[12px]">straighten</span>
-                                    {{ g.dimensiones|default:"Sin dim." }}
-                                </div>
-                            </div>
+                        <td class="px-8 py-7">
+                            <div class="inline-block px-2 py-1 rounded bg-custom-surface-highest text-custom-primary text-[11px] font-bold border border-custom-ui">{{ g.peso_final_kg|floatformat:1 }} kg</div>
+                            <div class="text-[10px] text-custom-outline/60 mt-1">{{ g.dimensiones|default:"Sin dim." }}</div>
                         </td>
 
-                        <!-- Estado Badge -->
-                        <td class="px-8 py-6">
+                        <!-- Estado -->
+                        <td class="px-8 py-7">
                             {% if g.estado == 'GENERADA' %}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
-                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>Generada
-                            </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+                                    <span class="text-sm font-medium text-blue-600">Generada</span>
+                                </div>
                             {% elif g.estado == 'EN_TRANSITO' %}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
-                                <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>En Tránsito
-                            </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                    <span class="text-sm font-medium text-amber-600">En Tránsito</span>
+                                </div>
                             {% elif g.estado == 'ENTREGADA' %}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>Entregada
-                            </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span class="text-sm font-medium text-emerald-600">Entregada</span>
+                                </div>
                             {% elif g.estado == 'CANCELADA' %}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-600 text-[10px] font-black uppercase tracking-widest border border-rose-500/20">
-                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>Cancelada
-                            </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-rose-500"></span>
+                                    <span class="text-sm font-medium text-rose-600">Cancelada</span>
+                                </div>
                             {% else %}
-                            <span class="text-custom-secondary text-[10px] font-black uppercase tracking-widest">{{ g.get_estado_display }}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-custom-outline"></span>
+                                    <span class="text-sm font-medium text-custom-secondary">{{ g.get_estado_display }}</span>
+                                </div>
                             {% endif %}
                         </td>
 
                         <!-- Acciones -->
-                        <td class="px-8 py-6 text-right">
-                            <div class="flex justify-end gap-1">
-                                <a href="{% url 'pedido_detail' g.pedido.id %}" class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-blue-600 hover:border-blue-500/30 hover:bg-blue-500/5 transition-all" title="Ver pedido">
-                                    <span class="material-symbols-outlined text-lg">visibility</span>
+                        <td class="px-8 py-7">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'pedido_detail' g.pedido.id %}"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-blue-600 hover:bg-blue-500/10 transition-all"
+                                   title="Ver Pedido">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 </a>
-                                <a href="{% url 'guia_update' g.id %}" class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-amber-600 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all" title="Editar guía">
-                                    <span class="material-symbols-outlined text-lg">edit</span>
+                                <a href="{% url 'guia_update' g.id %}"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-amber-600 hover:bg-amber-500/10 transition-all"
+                                   title="Editar Guía">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </a>
-                                <a href="{% url 'guia_delete' g.id %}" class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-rose-600 hover:border-rose-500/30 hover:bg-rose-500/5 transition-all" title="Eliminar guía">
-                                    <span class="material-symbols-outlined text-lg">delete</span>
+                                <a href="{% url 'guia_delete' g.id %}"
+                                   onclick="return confirm('¿Estás seguro de eliminar esta guía?')"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-rose-600 hover:bg-rose-500/10 transition-all"
+                                   title="Eliminar Guía">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </a>
                                 {% if g.archivo_pdf %}
-                                <a href="{{ g.archivo_pdf.url }}" target="_blank" class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-rose-600 hover:border-rose-500/30 hover:bg-rose-500/5 transition-all" title="Ver PDF">
-                                    <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+                                <a href="{{ g.archivo_pdf.url }}" target="_blank"
+                                   class="p-2 rounded-lg text-custom-outline hover:text-rose-600 hover:bg-rose-500/10 transition-all"
+                                   title="Ver PDF">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                 </a>
                                 {% endif %}
-                                <button class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-surface border border-custom-ui text-custom-outline hover:text-emerald-600 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all" title="Imprimir etiqueta">
-                                    <span class="material-symbols-outlined text-lg">print</span>
-                                </button>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-8 py-24 text-center">
-                            <div class="flex flex-col items-center gap-4">
-                                <div class="w-20 h-20 bg-custom-ui/20 rounded-full flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-4xl text-custom-outline/50">receipt_long</span>
-                                </div>
-                                <div class="space-y-1">
-                                    <p class="text-lg font-bold text-custom-primary">No se encontraron guías</p>
-                                    <p class="text-sm text-custom-tertiary">Intenta ajustar los filtros o realiza una nueva búsqueda.</p>
-                                </div>
-                                <a href="{% url 'dashboard_guias' %}" class="mt-2 text-custom-brand font-bold text-sm hover:underline flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-sm">refresh</span>
-                                    Limpiar todos los filtros
-                                </a>
+                        <td colspan="6" class="px-8 py-16 text-center">
+                            <div class="flex flex-col items-center gap-3 text-custom-outline/40">
+                                <svg class="w-12 h-12 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                <span class="text-sm font-medium">No se encontraron guías</span>
                             </div>
                         </td>
                     </tr>
@@ -299,38 +232,48 @@
             </table>
         </div>
 
-        <!-- ═══════════════════════════════ PAGINACIÓN ══════════════════════════════════ -->
-        <div class="px-8 py-5 border-t border-custom-ui/30 bg-custom-surface-low flex items-center justify-between">
+        <!-- Pagination -->
+        <div class="px-8 py-5 border-t border-custom-ui/3 bg-custom-surface-low flex items-center justify-between">
             <div class="flex items-center gap-6">
-                <div class="text-xs text-custom-secondary font-semibold">
-                    Mostrando <span class="text-custom-primary font-bold">{{ page_obj.start_index }}–{{ page_obj.end_index }}</span> de <span class="font-bold">{{ page_obj.paginator.count }}</span> guías
+                <div class="flex items-center gap-3">
+                    <span class="text-[11px] font-bold text-custom-outline uppercase tracking-widest">ROWS PER PAGE</span>
+                    <select name="per_page" onchange="this.form.submit()" class="px-3 py-1.5 bg-custom-surface border border-custom-ui/20 rounded-lg text-sm text-custom-primary focus:ring-2 focus:ring-blue-500/20 appearance-none shadow-sm focus:outline-none font-semibold">
+                        <option value="5" {% if items_por_pagina == 5 %}selected{% endif %}>5</option>
+                        <option value="10" {% if items_por_pagina == 10 %}selected{% endif %}>10</option>
+                        <option value="15" {% if items_por_pagina == 15 %}selected{% endif %}>15</option>
+                        <option value="20" {% if items_por_pagina == 20 %}selected{% endif %}>20</option>
+                    </select>
                 </div>
+                <div class="text-xs text-custom-secondary font-semibold">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of <span class="font-bold">{{ page_obj.paginator.count }}</span> guías</div>
             </div>
-
-            <nav class="flex items-center gap-1.5">
+            <nav class="flex items-center gap-2">
                 {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" 
-                   class="h-9 px-4 flex items-center justify-center rounded-xl border border-custom-ui text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-all">
-                   Anterior
-                </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" class="px-4 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">PREV</a>
+                {% else %}
+                    <span class="px-4 py-2 rounded-lg border border-custom-ui/20 text-custom-outline/30 text-xs font-bold opacity-50 cursor-not-allowed">PREV</span>
                 {% endif %}
-
                 <div class="flex items-center gap-1">
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if num == page_obj.number %}
-                            <span class="h-9 w-9 flex items-center justify-center rounded-xl bg-custom-primary text-custom-surface text-xs font-black">{{ num }}</span>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <a href="?page={{ num }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" 
-                               class="h-9 w-9 flex items-center justify-center rounded-xl border border-custom-ui text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-all">{{ num }}</a>
-                        {% endif %}
-                    {% endfor %}
+                    {% if page_obj.paginator.num_pages <= 7 %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if num == page_obj.number %}<span class="px-3 py-2 rounded-lg bg-custom-brand text-custom-on-brand text-xs font-bold">{{ num }}</span>
+                            {% else %}<a href="?page={{ num }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" class="px-3 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">{{ num }}</a>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for num in page_obj.paginator.page_range|slice:":3" %}
+                            {% if num == page_obj.number %}<span class="px-3 py-2 rounded-lg bg-custom-brand text-custom-on-brand text-xs font-bold">{{ num }}</span>
+                            {% else %}<a href="?page={{ num }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" class="px-3 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">{{ num }}</a>{% endif %}
+                        {% endfor %}
+                        <span class="px-2 text-custom-outline/50 text-xs font-semibold">...</span>
+                        {% for num in page_obj.paginator.page_range|slice:"-2:" %}
+                            {% if num == page_obj.number %}<span class="px-3 py-2 rounded-lg bg-custom-brand text-custom-on-brand text-xs font-bold">{{ num }}</span>
+                            {% else %}<a href="?page={{ num }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" class="px-3 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">{{ num }}</a>{% endif %}
+                        {% endfor %}
+                    {% endif %}
                 </div>
-
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" 
-                   class="h-9 px-4 flex items-center justify-center rounded-xl border border-custom-ui text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-all">
-                   Siguiente
-                </a>
+                    <a href="?page={{ page_obj.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_estado %}&estado={{ current_estado }}{% endif %}&per_page={{ items_por_pagina }}" class="px-4 py-2 rounded-lg border border-custom-ui/30 text-custom-secondary hover:bg-custom-surface text-xs font-bold transition-colors">NEXT</a>
+                {% else %}
+                    <span class="px-4 py-2 rounded-lg border border-custom-ui/20 text-custom-outline/30 text-xs font-bold opacity-50 cursor-not-allowed">NEXT</span>
                 {% endif %}
             </nav>
         </div>

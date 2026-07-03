@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | Enviart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/theme.js' %}"></script>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="container nav-content">
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'images/shiplog.png' %}" alt="Logo Enviart" class="logo-img">
+            <span>Enviart</span>
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}" class="nav-link">Inicio</a>
+            <a href="{% url 'servicios' %}" class="nav-link">Servicios</a>
+            <a href="{% url 'rastrear' %}" class="nav-link">Rastrear Envío</a>
+            <a href="{% url 'contacto' %}" class="nav-link">Contacto</a>
+        </nav>
+        <div class="nav-buttons">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">
+                <svg id="moon-icon" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="sun-icon" class="hidden" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            </button>
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}" class="inline-block">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline btn-logout">Cerrar sesión</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline">Ingresar</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Registrarse</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- Hero -->
+<section style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:100px 0 60px;text-align:center;">
+    <div class="container">
+        <span style="display:inline-block;background:rgba(27,107,245,.12);color:#60a5fa;border:1px solid rgba(27,107,245,.25);border-radius:50px;padding:6px 18px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px;">Contáctanos</span>
+        <h1 style="font-size:2.5rem;font-weight:800;color:#f1f5f9;margin:0 0 16px;">Estamos para ayudarte</h1>
+        <p style="color:#64748b;font-size:1rem;max-width:480px;margin:0 auto;">Escríbenos, llámanos o visítanos. Nuestro equipo responde en menos de 2 horas hábiles.</p>
+    </div>
+</section>
+
+<div class="container" style="padding:64px 20px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+
+        <!-- Formulario -->
+        <div class="card" style="padding:40px;border-radius:20px;">
+            <h2 style="font-size:1.2rem;font-weight:800;margin:0 0 6px;">Envíanos un mensaje</h2>
+            <p style="color:#64748b;font-size:.85rem;margin:0 0 28px;">Responderemos a tu correo en breve.</p>
+
+            {% if mensaje_enviado %}
+            <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-left:4px solid #10b981;color:#34d399;padding:14px 18px;border-radius:10px;font-size:.9rem;margin-bottom:24px;">
+                <strong>¡Mensaje enviado!</strong> Te responderemos pronto.
+            </div>
+            {% endif %}
+
+            <form method="post" style="display:flex;flex-direction:column;gap:18px;">
+                {% csrf_token %}
+                <div>
+                    <label style="display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:6px;">Nombre completo</label>
+                    <input type="text" name="nombre" required placeholder="Tu nombre"
+                           style="width:100%;background:var(--surface,#0f172a);border:1px solid var(--ui,#1e293b);border-radius:12px;padding:13px 16px;font-size:.9rem;color:inherit;font-family:inherit;box-sizing:border-box;outline:none;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:6px;">Correo electrónico</label>
+                    <input type="email" name="email" required placeholder="tu@correo.com"
+                           style="width:100%;background:var(--surface,#0f172a);border:1px solid var(--ui,#1e293b);border-radius:12px;padding:13px 16px;font-size:.9rem;color:inherit;font-family:inherit;box-sizing:border-box;outline:none;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:6px;">Asunto</label>
+                    <select name="asunto" style="width:100%;background:var(--surface,#0f172a);border:1px solid var(--ui,#1e293b);border-radius:12px;padding:13px 16px;font-size:.9rem;color:inherit;font-family:inherit;box-sizing:border-box;outline:none;appearance:none;">
+                        <option value="">Selecciona un asunto</option>
+                        <option>Consulta sobre servicios</option>
+                        <option>Problema con un envío</option>
+                        <option>Solicitud corporativa</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:6px;">Mensaje</label>
+                    <textarea name="mensaje" required rows="5" placeholder="Cuéntanos en qué podemos ayudarte..."
+                              style="width:100%;background:var(--surface,#0f172a);border:1px solid var(--ui,#1e293b);border-radius:12px;padding:13px 16px;font-size:.9rem;color:inherit;font-family:inherit;box-sizing:border-box;outline:none;resize:vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="padding:14px;font-size:.95rem;font-weight:700;">
+                    Enviar mensaje
+                </button>
+            </form>
+        </div>
+
+        <!-- Info de contacto -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+            <div class="card" style="padding:28px;border-radius:16px;display:flex;gap:18px;align-items:flex-start;">
+                <div style="width:44px;height:44px;background:rgba(27,107,245,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <span class="material-symbols-outlined" style="color:#60a5fa;font-size:22px;">location_on</span>
+                </div>
+                <div>
+                    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:4px;">Dirección</div>
+                    <div style="font-size:.95rem;font-weight:600;">Calle 72 #10-34, Piso 8</div>
+                    <div style="font-size:.85rem;color:#64748b;">Bogotá D.C., Colombia</div>
+                </div>
+            </div>
+
+            <div class="card" style="padding:28px;border-radius:16px;display:flex;gap:18px;align-items:flex-start;">
+                <div style="width:44px;height:44px;background:rgba(16,185,129,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <span class="material-symbols-outlined" style="color:#34d399;font-size:22px;">phone</span>
+                </div>
+                <div>
+                    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:4px;">Teléfono</div>
+                    <div style="font-size:.95rem;font-weight:600;">+57 (601) 321-4567</div>
+                    <div style="font-size:.85rem;color:#64748b;">Lunes a Viernes, 8am – 6pm</div>
+                </div>
+            </div>
+
+            <div class="card" style="padding:28px;border-radius:16px;display:flex;gap:18px;align-items:flex-start;">
+                <div style="width:44px;height:44px;background:rgba(245,158,11,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <span class="material-symbols-outlined" style="color:#fbbf24;font-size:22px;">mail</span>
+                </div>
+                <div>
+                    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:4px;">Correo</div>
+                    <div style="font-size:.95rem;font-weight:600;">info@enviart.com</div>
+                    <div style="font-size:.85rem;color:#64748b;">Respuesta en menos de 2h hábiles</div>
+                </div>
+            </div>
+
+            <div class="card" style="padding:28px;border-radius:16px;display:flex;gap:18px;align-items:flex-start;">
+                <div style="width:44px;height:44px;background:rgba(139,92,246,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <span class="material-symbols-outlined" style="color:#a78bfa;font-size:22px;">schedule</span>
+                </div>
+                <div>
+                    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:4px;">Horario de atención</div>
+                    <div style="font-size:.9rem;font-weight:600;">Lun – Vie: 8:00am – 6:00pm</div>
+                    <div style="font-size:.85rem;color:#64748b;">Sábados: 9:00am – 1:00pm</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container footer-grid">
+        <div class="footer-col">
+            <h3 class="footer-title footer__heading">Enviart</h3>
+            <p class="footer-text">Tu aliado estratégico en logística y mensajería nacional.</p>
+        </div>
+        <div class="footer-col">
+            <h3 class="footer-title footer__heading">Mapa del Sitio</h3>
+            <ul class="footer-links">
+                <li><a href="{% url 'home' %}" class="footer-link">Inicio</a></li>
+                <li><a href="{% url 'servicios' %}" class="footer-link">Servicios</a></li>
+                <li><a href="{% url 'rastrear' %}" class="footer-link">Rastreo</a></li>
+                <li><a href="{% url 'contacto' %}" class="footer-link">Contacto</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3 class="footer-title footer__heading">Legal</h3>
+            <ul class="footer-links">
+                <li><a href="#" class="footer-link">Términos y condiciones</a></li>
+                <li><a href="#" class="footer-link">Política de privacidad</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 Enviart Logistic. Diseñado con excelencia.</div>
+</footer>
+
+<script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

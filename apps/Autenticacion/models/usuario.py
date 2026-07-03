@@ -97,7 +97,11 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         self.save(update_fields=['intentos_login_fallidos', 'bloqueo_hasta', 'ultimo_login_ip'])
     
     def es_admin(self):
-        return self.is_staff or (hasattr(self, 'rol') and self.rol and self.rol.tipo_rol == 'ADMINISTRADOR')
+        if self.is_staff or self.is_superuser:
+            return True
+        if hasattr(self, 'rol') and self.rol:
+            return self.rol.tipo_rol in ('ADMINISTRADOR', 'ADMIN')
+        return False
     
     def es_mensajero(self):
         return hasattr(self, 'rol') and self.rol and self.rol.tipo_rol == 'MENSAJERO'

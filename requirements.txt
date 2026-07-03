@@ -9,7 +9,6 @@ packaging==26.0
 Pillow==12.2.0
 reportlab==4.4.10
 sqlparse==0.5.5
-TA-Lib==0.6.8
 tablib==3.9.0
 tzdata==2025.3
 openpyxl==3.1.5

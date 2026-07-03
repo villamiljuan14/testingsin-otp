@@ -1,29 +1,38 @@
 from rest_framework import viewsets, status, permissions, generics
 from rest_framework.response import Response
 from ..models import EventoTracking, Pedido
-from ..serializers.tracking import EventoTrackingSerializer, TrackingPublicoSerializer
+from ..serializers.tracking import EventoTrackingSerializer, EventoTrackingCreateSerializer, TrackingPublicoSerializer
 from ..permissions import IsAdminUser, IsMensajero
 
 
 class TrackingViewSet(viewsets.ModelViewSet):
     """ViewSet para eventos de tracking"""
-    
-    serializer_class = EventoTrackingSerializer
-    permission_classes = [permissions.IsAuthenticated()]
-    
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return EventoTrackingCreateSerializer
+        return EventoTrackingSerializer
+
     def get_queryset(self):
         user = self.request.user
-        
+
         if user.es_admin():
-            return EventoTracking.objects.select_related('pedido', 'hub', 'registrado_por')
-        
-        # Usuarios normales solo ven tracking de sus pedidos
+            return EventoTracking.objects.select_related(
+                'pedido', 'hub', 'registrado_por'
+            )
+
+        if user.es_mensajero():
+            return EventoTracking.objects.filter(
+                pedido__mensajero=user
+            ).select_related('pedido', 'hub', 'registrado_por')
+
         return EventoTracking.objects.filter(
             pedido__usuario=user
         ).select_related('pedido', 'hub', 'registrado_por')
-    
+
     def perform_create(self, serializer):
-        """Crear evento de tracking"""
         serializer.save(registrado_por=self.request.user)
 
 
