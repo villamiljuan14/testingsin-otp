@@ -39,7 +39,7 @@ if RAILWAY_STATIC_URL:
 # Security Settings for Production
 # =============================================
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False  # Railway maneja SSL en el proxy, no en la app
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = []
