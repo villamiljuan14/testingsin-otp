@@ -1,11 +1,9 @@
 [build]
-builder = "nixpacks"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "python -m daphne -b 0.0.0.0 -p $PORT config.asgi:application"
+startCommand = "python manage.py migrate --no-input && python -m daphne -b 0.0.0.0 -p $PORT config.asgi:application"
 healthcheckPath = "/api/auth/login/"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
-
-[environment]
-DJANGO_SETTINGS_MODULE = "config.settings.railway"
