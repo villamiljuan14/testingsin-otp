@@ -9,7 +9,7 @@ env = environ.Env(
 )
 environ.Env.read_env(BASE_DIR / '.env')
 
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-build-only-not-for-production')
 DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
     'enviart-web-j7nx.onrender.com',
@@ -137,12 +137,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-# --- Redis + Channels (usa REDIS_URL de Render) ---
+# --- Redis + Channels ---
+# En build-time no hay REDIS_URL; en runtime Railway la inyecta
+_redis_url = env('REDIS_URL', default='redis://localhost:6379/0')
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [env('REDIS_URL')],
+            'hosts': [_redis_url],
         },
     },
 }
@@ -155,10 +157,10 @@ CHANNEL_LAYERS = {
         #ssl_require=True,
     #)
 #}
-# --- Base de datos (Compatible con Postgres Local y Railway) ---
+# --- Base de datos ---
 DATABASES = {
     'default': dj_database_url.config(
-        default=env('DATABASE_URL'),
+        default=env('DATABASE_URL', default='sqlite:///db.sqlite3'),
         conn_max_age=600,
         ssl_require=not DEBUG,
     )
@@ -194,9 +196,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 import cloudinary
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY':    env('CLOUDINARY_API_KEY'),
-    'API_SECRET': env('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY':    env('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = ''  # Cloudinary genera sus propias URLs, no necesita prefijo
